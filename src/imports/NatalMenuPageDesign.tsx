@@ -1,5 +1,5 @@
+import React from "react";
 import svgPaths from "./svg-ifdmwc43be";
-import { imgVector } from "./svg-p9cdp";
 
 function Paragraph() {
   return (
@@ -12,21 +12,21 @@ function Paragraph() {
 function Group() {
   return (
     <div className="absolute contents inset-[8.47%_8.75%_9.13%_8.47%]" data-name="Group">
-      <div className="absolute inset-[82.61%_62.83%_9.13%_28.91%] mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[-6.018px_-17.194px] mask-size-[20.633px_20.633px]" data-name="Vector" style={{ maskImage: `url('${imgVector}')` }}>
+      <div className="absolute inset-[82.61%_62.83%_9.13%_28.91%] mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[-6.018px_-17.194px] mask-size-[20.633px_20.633px] mask-vector" data-name="Vector">
         <div className="absolute inset-[-50.023%]">
           <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 4 4">
             <path d={svgPaths.p24ffb300} id="Vector" stroke="var(--stroke-0, #D4AF37)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7194" />
           </svg>
         </div>
       </div>
-      <div className="absolute inset-[82.61%_17.39%_9.13%_74.35%] mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[-15.475px_-17.194px] mask-size-[20.633px_20.633px]" data-name="Vector" style={{ maskImage: `url('${imgVector}')` }}>
+      <div className="absolute inset-[82.61%_17.39%_9.13%_74.35%] mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[-15.475px_-17.194px] mask-size-[20.633px_20.633px] mask-vector" data-name="Vector">
         <div className="absolute inset-[-50.023%]">
           <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 4 4">
             <path d={svgPaths.p3952b600} id="Vector" stroke="var(--stroke-0, #D4AF37)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7194" />
           </svg>
         </div>
       </div>
-      <div className="absolute inset-[8.47%_8.75%_33.7%_8.47%] mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[-1.762px] mask-size-[20.633px_20.633px]" data-name="Vector" style={{ maskImage: `url('${imgVector}')` }}>
+      <div className="absolute inset-[8.47%_8.75%_33.7%_8.47%] mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[-1.762px] mask-size-[20.633px_20.633px] mask-vector" data-name="Vector">
         <div className="absolute inset-[-7.14%_-4.99%]">
           <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 20 14">
             <path d={svgPaths.p117d3c50} id="Vector" stroke="var(--stroke-0, #D4AF37)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7194" />

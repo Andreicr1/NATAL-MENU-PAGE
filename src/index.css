@@ -106,7 +106,6 @@
   }
 
   html, :host {
-    -webkit-text-size-adjust: 100%;
     tab-size: 4;
     line-height: 1.5;
     font-family: var(--default-font-family, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
@@ -2880,6 +2879,7 @@ body {
 
 [data-slot="sheet-overlay"] {
   -webkit-backdrop-filter: blur(20px) saturate(180%) contrast(90%);
+  backdrop-filter: blur(20px) saturate(180%) contrast(90%);
   background-color: #faf8f366 !important;
 }
 

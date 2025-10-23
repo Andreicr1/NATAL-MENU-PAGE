@@ -1,3 +1,4 @@
+import React from "react";
 import { ShoppingCart, Menu, ArrowLeft } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 

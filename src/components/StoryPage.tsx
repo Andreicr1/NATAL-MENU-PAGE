@@ -1,3 +1,4 @@
+import React from "react";
 import { ArrowLeft } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 

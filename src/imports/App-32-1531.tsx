@@ -1,3 +1,4 @@
+import React from "react";
 import svgPaths from "./svg-7s8tlsgvhb";
 
 function Container5() {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Edit, Trash2, Save, X, Plus, DollarSign, Package, Upload, Image as ImageIcon } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "./ui/sheet";
 import { Input } from "./ui/input";
@@ -8,7 +8,7 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { updateProduct, deleteProduct, fetchProducts, uploadProductImage } from "../utils/api";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 
 interface Product {
   id: string;

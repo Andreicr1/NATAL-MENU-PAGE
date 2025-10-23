@@ -1,3 +1,4 @@
+import React from "react";
 import { ShoppingCart, Plus, Minus, X, Trash2 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "./ui/sheet";
 import { ImageWithFallback } from "./figma/ImageWithFallback";

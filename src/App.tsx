@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { ScrollArea } from "./components/ui/scroll-area";
 import { Separator } from "./components/ui/separator";
 import {
@@ -42,7 +41,7 @@ import {
   Facebook,
   MessageCircle,
 } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { Toaster } from "./components/ui/sonner";
 import svgPaths from "./imports/svg-7s8tlsgvhb";
 import menuSvgPaths from "./imports/svg-k56t5hodsm";
@@ -688,7 +687,7 @@ type PageView = "landing" | "category" | "story";
 
 export default function App() {
   const [currentPage, setCurrentPage] =
-    useState<PageView>("landing");
+    useState("landing");
   const [showProducts, setShowProducts] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(
     categories[0].id,
@@ -961,7 +960,7 @@ export default function App() {
                     toast.success("Admin autenticado!");
                   }
                 }}
-                className="font-['Libre_Baskerville',_sans-serif] italic leading-[21.87px] relative shrink-0 text-[#fbf7e8] text-[20.829px] text-left text-nowrap tracking-[0.3645px] whitespace-pre px-[17px] px-[25px] py-[0px] cursor-pointer"
+                className="font-['Libre_Baskerville',_sans-serif] italic leading-[21.87px] relative shrink-0 text-[#fbf7e8] text-[20.829px] text-left text-nowrap tracking-[0.3645px] whitespace-pre px-[25px] py-[0px] cursor-pointer"
               >
                 Menu Especial de Natal 2025
               </p>
@@ -1011,19 +1010,14 @@ export default function App() {
         </div>
 
         {/* Main Content */}
-        <div className="absolute content-stretch flex flex-col items-start left-0 overflow-clip top-[183px] w-full px-4">
+        <div className="absolute content-stretch flex flex-col items-start left-0 overflow-clip top-[183px] w-full px-4 pt-[24px]">
           <div className="w-full max-w-[437.742px] mx-auto">
             {/* Sobre nós Section */}
-            <div className="content-stretch flex flex-col gap-[12.498px] items-start w-full mt-[16px] mb-[32px] px-[-11px] mr-[0px] ml-[-38px] px-[3px] py-[0px]">
-              <div className="content-stretch flex gap-[8.337px] items-center w-full px-[10px] py-[0px]">
-                <div className="h-[37.508px] w-[42.932px]" />
-                <div className="flex-1">
-                  <p className="font-['Libre_Baskerville',_sans-serif] leading-[30.017px] not-italic text-[rgb(92,1,8)] text-[25.014px] px-[-27px] py-[0px] mx-[-60px] my-[0px]">
-                    Sobre nós
-                  </p>
-                </div>
-              </div>
-              <div className="bg-[#d4af37] h-[2.081px] w-full" />
+            <div className="mb-[24px]">
+              <h1 className="font-['Libre_Baskerville',_sans-serif] text-[rgb(92,1,8)] text-[25px] leading-[30px] mb-[12px]">
+                Sobre nós
+              </h1>
+              <div className="bg-[#d4af37] h-[2px] w-full" />
             </div>
 
             {/* Admin Controls - Only visible when authenticated */}
@@ -1064,8 +1058,8 @@ export default function App() {
 
             {/* About Text Box */}
             <div className="w-full rounded-[14px] mb-8">
-              <div className="box-border content-stretch flex flex-col gap-[10.422px] items-center justify-center overflow-clip px-[18.76px] py-[17.718px] relative rounded-[inherit] w-full border-[#d4af37] border-[1.042px] border-solid">
-                <div className="flex flex-col font-['Libre_Baskerville',_sans-serif] justify-center leading-[30.017px] not-italic text-[#5c0108] text-[16.676px] w-full">
+              <div className="box-border content-stretch flex flex-col gap-[10.422px] items-start overflow-clip px-[18.76px] py-[17.718px] relative rounded-[inherit] w-full border-[#d4af37] border-[1.042px] border-solid">
+                <div className="flex flex-col font-['Libre_Baskerville',_sans-serif] leading-[30.017px] not-italic text-[#5c0108] text-[16.676px] text-left w-full">
                   <p className="mb-0">
                     Bem-vindo(a) à Sweet Bar!
                   </p>
@@ -1171,8 +1165,7 @@ export default function App() {
 
                     {/* Divider */}
                     <div
-                      className="absolute left-[24px] right-[24px] h-[1px] bg-[#d4af37]"
-                      style={{ top: "502px" }}
+                      className="navigation-divider absolute left-[24px] right-[24px] h-[1px] bg-[#d4af37]"
                     />
                   </div>
                 </SheetContent>
@@ -1224,22 +1217,16 @@ export default function App() {
 
       {/* Products Page */}
       <div
-        className={`min-h-screen flex flex-col ${showProducts ? "block" : "hidden"}`}
-        style={{ backgroundColor: "var(--cream)" }}
+        className={`min-h-screen flex flex-col bg-cream ${showProducts ? "block" : "hidden"}`}
       >
         <div className="flex-1 flex flex-col lg:flex-row">
           {/* Sidebar - Desktop Only */}
           <aside
-            className="hidden lg:block lg:w-80 lg:sticky lg:top-0 lg:h-screen overflow-y-auto"
-            style={{ backgroundColor: "var(--dark-burgundy)" }}
+            className="hidden lg:block lg:w-80 lg:sticky lg:top-0 lg:h-screen overflow-y-auto bg-dark-burgundy"
           >
             <div className="p-8">
               <h2
-                className="mb-8 pb-4 border-b"
-                style={{
-                  color: "var(--gold)",
-                  borderColor: "var(--gold)",
-                }}
+                className="mb-8 pb-4 border-b text-gold border-gold"
               >
                 Categorias
               </h2>
@@ -1251,21 +1238,11 @@ export default function App() {
                     onClick={() =>
                       setSelectedCategory(category.id)
                     }
-                    className="w-full text-left px-6 py-4 rounded-lg transition-all duration-300 flex items-center gap-3 group"
-                    style={{
-                      backgroundColor:
-                        selectedCategory === category.id
-                          ? "var(--burgundy)"
-                          : "transparent",
-                      color:
-                        selectedCategory === category.id
-                          ? "var(--gold)"
-                          : "var(--cream)",
-                      border:
-                        selectedCategory === category.id
-                          ? "1px solid var(--gold)"
-                          : "1px solid transparent",
-                    }}
+                    className={`w-full text-left px-6 py-4 rounded-lg transition-all duration-300 flex items-center gap-3 group ${
+                      selectedCategory === category.id
+                        ? "category-button-selected"
+                        : "category-button-unselected"
+                    }`}
                   >
                     <span className="text-3xl">
                       {category.icon}
@@ -1274,13 +1251,11 @@ export default function App() {
                       {category.name}
                     </span>
                     <ChevronRight
-                      className="w-6 h-6 transition-transform group-hover:translate-x-1"
-                      style={{
-                        color:
-                          selectedCategory === category.id
-                            ? "var(--gold)"
-                            : "var(--light-gold)",
-                      }}
+                      className={`w-6 h-6 transition-transform group-hover:translate-x-1 ${
+                        selectedCategory === category.id
+                          ? "text-gold"
+                          : "text-light-gold"
+                      }`}
                     />
                   </button>
                 ))}
@@ -1292,10 +1267,7 @@ export default function App() {
           <main className="flex-1">
             {/* Header */}
             <header
-              className="sticky top-0 z-40 px-4 md:px-8 py-4 md:py-6 shadow-md"
-              style={{
-                backgroundColor: "var(--burgundy)",
-              }}
+              className="sticky top-0 z-40 px-4 md:px-8 py-4 md:py-6 shadow-md bg-dark-burgundy"
             >
               <div className="relative overflow-hidden">
                 <div className="max-w-7xl mx-auto relative z-10">
@@ -1307,25 +1279,17 @@ export default function App() {
                     >
                       <SheetTrigger asChild>
                         <button
-                          className="lg:hidden p-2 rounded-lg hover:bg-opacity-20 transition-all"
-                          style={{
-                            backgroundColor:
-                              "rgba(212, 175, 55, 0.1)",
-                          }}
+                          className="lg:hidden p-2 rounded-lg hover:bg-opacity-20 transition-all bg-gold-opacity"
+                          aria-label="Abrir menu de navegação"
                         >
                           <Menu
-                            className="w-6 h-6"
-                            style={{ color: "var(--gold)" }}
+                            className="w-6 h-6 text-gold"
                           />
                         </button>
                       </SheetTrigger>
                       <SheetContent
                         side="left"
-                        className="w-[280px] p-0 bg-[#5c0108] border-r border-[#f8f1dc]"
-                        style={{
-                          boxShadow:
-                            "0px 10px 15px -3px rgba(0,0,0,0.1), 0px 4px 6px -4px rgba(0,0,0,0.1)",
-                        }}
+                        className="w-[280px] p-0 bg-[#5c0108] border-r border-[#f8f1dc] sheet-shadow"
                       >
                         <div className="h-full relative">
                           {/* Header */}
@@ -1399,21 +1363,12 @@ export default function App() {
 
                     <div className="flex-1 text-center">
                       <h1
-                        className="font-decorative"
-                        style={{
-                          color: "var(--cream)",
-                          fontSize: "clamp(1.5rem, 5vw, 3rem)",
-                        }}
+                        className="font-decorative text-cream text-clamp-large"
                       >
                         Sweet Bar Chocolates
                       </h1>
                       <p
-                        className="italic mt-1"
-                        style={{
-                          color: "var(--light-gold)",
-                          fontSize:
-                            "clamp(0.875rem, 2.5vw, 1.125rem)",
-                        }}
+                        className="italic mt-1 text-light-gold text-clamp-medium"
                       >
                         Menu Especial de Natal 2025
                       </p>
@@ -1423,23 +1378,15 @@ export default function App() {
                     <Sheet>
                       <SheetTrigger asChild>
                         <button
-                          className="relative p-2 md:p-3 rounded-full hover:bg-opacity-20 transition-all"
-                          style={{
-                            backgroundColor:
-                              "rgba(212, 175, 55, 0.1)",
-                          }}
+                          className="relative p-2 md:p-3 rounded-full hover:bg-opacity-20 transition-all bg-gold-opacity"
+                          aria-label="Abrir carrinho de compras"
                         >
                           <ShoppingCart
-                            className="w-5 h-5 md:w-7 md:h-7"
-                            style={{ color: "var(--gold)" }}
+                            className="w-5 h-5 md:w-7 md:h-7 text-gold"
                           />
                           {cartItemCount > 0 && (
                             <span
-                              className="absolute -top-1 -right-1 w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center"
-                              style={{
-                                backgroundColor: "var(--gold)",
-                                color: "var(--burgundy)",
-                              }}
+                              className="absolute -top-1 -right-1 w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center bg-gold text-burgundy"
                             >
                               {cartItemCount}
                             </span>
@@ -1467,12 +1414,9 @@ export default function App() {
                           {cart.length === 0 ? (
                             <div className="text-center py-12">
                               <ShoppingCart
-                                className="w-16 h-16 mx-auto mb-4 opacity-30"
-                                style={{
-                                  color: "var(--burgundy)",
-                                }}
+                                className="w-16 h-16 mx-auto mb-4 opacity-30 text-burgundy"
                               />
-                              <p style={{ color: "#666666" }}>
+                              <p className="text-gray-666">
                                 Seu carrinho está vazio
                               </p>
                             </div>
@@ -1481,12 +1425,7 @@ export default function App() {
                               {cart.map((item) => (
                                 <div
                                   key={item.product.id}
-                                  className="flex gap-4 p-4 rounded-lg border"
-                                  style={{
-                                    backgroundColor: "#FFFFFF",
-                                    borderColor:
-                                      "var(--light-gold)",
-                                  }}
+                                  className="flex gap-4 p-4 rounded-lg border bg-white border-light-gold-custom"
                                 >
                                   <img
                                     src={item.product.image}
@@ -1495,18 +1434,12 @@ export default function App() {
                                   />
                                   <div className="flex-1">
                                     <h4
-                                      style={{
-                                        color:
-                                          "var(--burgundy)",
-                                      }}
+                                      className="text-burgundy"
                                     >
                                       {item.product.name}
                                     </h4>
                                     <p
-                                      style={{
-                                        color:
-                                          "var(--burgundy)",
-                                      }}
+                                      className="text-burgundy"
                                     >
                                       {item.product.price}
                                     </p>
@@ -1518,21 +1451,13 @@ export default function App() {
                                             item.quantity - 1,
                                           )
                                         }
-                                        className="p-1 rounded hover:bg-opacity-10"
-                                        style={{
-                                          backgroundColor:
-                                            "rgba(124, 28, 61, 0.1)",
-                                          color:
-                                            "var(--burgundy)",
-                                        }}
+                                        className="p-1 rounded btn-burgundy-bg hover:bg-opacity-10"
+                                        aria-label="Diminuir quantidade"
                                       >
                                         <Minus className="w-4 h-4" />
                                       </button>
                                       <span
-                                        style={{
-                                          color:
-                                            "var(--burgundy)",
-                                        }}
+                                        className="text-burgundy"
                                       >
                                         {item.quantity}
                                       </span>
@@ -1543,13 +1468,8 @@ export default function App() {
                                             item.quantity + 1,
                                           )
                                         }
-                                        className="p-1 rounded hover:bg-opacity-10"
-                                        style={{
-                                          backgroundColor:
-                                            "rgba(124, 28, 61, 0.1)",
-                                          color:
-                                            "var(--burgundy)",
-                                        }}
+                                        className="p-1 rounded btn-burgundy-bg hover:bg-opacity-10"
+                                        aria-label="Aumentar quantidade"
                                       >
                                         <Plus className="w-4 h-4" />
                                       </button>
@@ -1559,13 +1479,8 @@ export default function App() {
                                             item.product.id,
                                           )
                                         }
-                                        className="ml-auto p-1 rounded hover:bg-opacity-10"
-                                        style={{
-                                          backgroundColor:
-                                            "rgba(124, 28, 61, 0.1)",
-                                          color:
-                                            "var(--burgundy)",
-                                        }}
+                                        className="ml-auto p-1 rounded btn-burgundy-bg hover:bg-opacity-10"
+                                        aria-label="Remover item do carrinho"
                                       >
                                         <X className="w-4 h-4" />
                                       </button>
@@ -1579,35 +1494,22 @@ export default function App() {
 
                         {cart.length > 0 && (
                           <div
-                            className="absolute bottom-0 left-0 right-0 p-6 border-t"
-                            style={{
-                              backgroundColor: "var(--cream)",
-                              borderColor: "var(--light-gold)",
-                            }}
+                            className="absolute bottom-0 left-0 right-0 p-6 border-t bg-cream border-light-gold-custom"
                           >
                             <div className="flex justify-between items-center mb-4">
                               <span
-                                style={{
-                                  color: "var(--burgundy)",
-                                }}
+                                className="text-burgundy"
                               >
                                 Total:
                               </span>
                               <span
-                                style={{
-                                  color: "var(--burgundy)",
-                                }}
+                                className="text-burgundy"
                               >
                                 R$ {cartTotal.toFixed(2)}
                               </span>
                             </div>
                             <button
-                              className="w-full py-3 rounded-lg transition-all duration-300 hover:shadow-lg"
-                              style={{
-                                backgroundColor:
-                                  "var(--burgundy)",
-                                color: "var(--cream)",
-                              }}
+                              className="w-full py-3 rounded-lg transition-all duration-300 hover:shadow-lg bg-dark-burgundy text-cream"
                             >
                               Finalizar Pedido
                             </button>
@@ -1626,23 +1528,19 @@ export default function App() {
                 {/* Category Title */}
                 <div className="mb-6 md:mb-8">
                   <h2
-                    className="font-decorative mb-2"
-                    style={{
-                      color: "var(--burgundy)",
-                      fontSize: "clamp(2rem, 5vw, 3rem)",
-                    }}
+                    className="font-decorative mb-2 text-burgundy text-clamp-large"
                   >
                     {currentCategory?.name}
                   </h2>
                   <Separator
-                    style={{ backgroundColor: "var(--gold)" }}
+                    className="bg-gold"
                   />
                 </div>
 
                 {/* Products Grid */}
                 {filteredProducts.length === 0 ? (
                   <div className="text-center py-12">
-                    <p style={{ color: "#666666" }}>
+                    <p className="text-gray-666">
                       Nenhum produto encontrado.
                     </p>
                   </div>
@@ -1651,31 +1549,21 @@ export default function App() {
                     {filteredProducts.map((product) => (
                       <div
                         key={product.id}
-                        className="group relative overflow-hidden rounded-xl transition-all duration-300 hover:shadow-2xl"
-                        style={{
-                          backgroundColor: "#FFFFFF",
-                          border: product.featured
-                            ? "2px solid var(--gold)"
-                            : "1px solid #E5E5E5",
-                        }}
+                        className={`group relative overflow-hidden rounded-xl transition-all duration-300 hover:shadow-2xl bg-white ${
+                          product.featured
+                            ? "border-2 border-gold"
+                            : "border border-gray-200"
+                        }`}
                       >
                         {product.featured && (
                           <div
-                            className="absolute top-3 md:top-4 right-3 md:right-4 z-10 px-2 md:px-3 py-1 rounded-full flex items-center gap-1"
-                            style={{
-                              backgroundColor: "var(--gold)",
-                            }}
+                            className="absolute top-3 md:top-4 right-3 md:right-4 z-10 px-2 md:px-3 py-1 rounded-full flex items-center gap-1 bg-gold"
                           >
                             <Star
-                              className="w-3 h-3 md:w-4 md:h-4 fill-current"
-                              style={{
-                                color: "var(--burgundy)",
-                              }}
+                              className="w-3 h-3 md:w-4 md:h-4 fill-current text-burgundy"
                             />
                             <span
-                              style={{
-                                color: "var(--burgundy)",
-                              }}
+                              className="text-burgundy"
                             >
                               Destaque
                             </span>
@@ -1693,12 +1581,7 @@ export default function App() {
                         <div className="p-4 md:p-6">
                           <div className="flex items-start justify-between gap-2 mb-2">
                             <h3
-                              style={{
-                                color: "var(--burgundy)",
-                                fontSize:
-                                  "clamp(1.125rem, 3vw, 1.5rem)",
-                                lineHeight: "1.3",
-                              }}
+                              className="text-burgundy text-clamp-small"
                             >
                               {product.name}
                             </h3>
@@ -1736,27 +1619,16 @@ export default function App() {
                           )}
 
                           <p
-                            className="mb-4 italic line-clamp-2"
-                            style={{
-                              color: "#666666",
-                              lineHeight: "1.6",
-                            }}
+                            className="mb-4 italic line-clamp-2 text-description"
                           >
                             {product.description}
                           </p>
 
                           <div
-                            className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-4 border-t"
-                            style={{
-                              borderColor: "var(--light-gold)",
-                            }}
+                            className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-4 border-t border-light-gold-custom"
                           >
                             <span
-                              style={{
-                                color: "var(--burgundy)",
-                                fontSize:
-                                  "clamp(1.25rem, 3vw, 1.75rem)",
-                              }}
+                              className="text-burgundy text-clamp-price"
                             >
                               {product.price}
                             </span>
@@ -1766,12 +1638,7 @@ export default function App() {
                                 onClick={() =>
                                   setSelectedProduct(product)
                                 }
-                                className="flex-1 sm:flex-initial px-3 md:px-4 py-2 rounded-lg transition-all duration-300 hover:opacity-80 border"
-                                style={{
-                                  borderColor:
-                                    "var(--burgundy)",
-                                  color: "var(--burgundy)",
-                                }}
+                                className="flex-1 sm:flex-initial px-3 md:px-4 py-2 rounded-lg transition-all duration-300 hover:opacity-80 border btn-burgundy-outline"
                               >
                                 Detalhes
                               </button>
@@ -1779,12 +1646,7 @@ export default function App() {
                                 onClick={() =>
                                   addToCart(product)
                                 }
-                                className="flex-1 sm:flex-initial px-3 md:px-4 py-2 rounded-lg transition-all duration-300 hover:shadow-lg flex items-center justify-center gap-2"
-                                style={{
-                                  backgroundColor:
-                                    "var(--burgundy)",
-                                  color: "var(--cream)",
-                                }}
+                                className="flex-1 sm:flex-initial px-3 md:px-4 py-2 rounded-lg transition-all duration-300 hover:shadow-lg flex items-center justify-center gap-2 bg-dark-burgundy text-cream"
                               >
                                 <Plus className="w-4 h-4" />
                                 Adicionar
@@ -1799,26 +1661,15 @@ export default function App() {
 
                 {/* Footer Note */}
                 <div
-                  className="mt-8 md:mt-12 p-4 md:p-6 rounded-xl text-center"
-                  style={{
-                    backgroundColor: "rgba(124, 28, 61, 0.05)",
-                    border: "1px solid var(--light-gold)",
-                  }}
+                  className="mt-8 md:mt-12 p-4 md:p-6 rounded-xl text-center bg-burgundy-light border border-light-gold-custom"
                 >
                   <p
-                    className="font-decorative mb-2"
-                    style={{
-                      color: "var(--burgundy)",
-                      fontSize: "clamp(1.5rem, 4vw, 2rem)",
-                    }}
+                    className="font-decorative mb-2 text-burgundy text-clamp-footer"
                   >
                     Encomendas Personalizadas
                   </p>
                   <p
-                    className="italic"
-                    style={{
-                      color: "#666666",
-                    }}
+                    className="italic text-gray-666"
                   >
                     Entre em contato para criar uma cesta
                     personalizada com seus produtos favoritos
@@ -1867,16 +1718,12 @@ export default function App() {
                   <div>
                     <div className="mb-4">
                       <p
-                        className="italic mb-2"
-                        style={{ color: "#666666" }}
+                        className="italic mb-2 text-gray-666"
                       >
                         {selectedProduct.description}
                       </p>
                       <p
-                        style={{
-                          color: "var(--burgundy)",
-                          fontSize: "clamp(1.5rem, 4vw, 2rem)",
-                        }}
+                        className="text-burgundy text-clamp-footer"
                       >
                         {selectedProduct.price}
                       </p>
@@ -1885,8 +1732,7 @@ export default function App() {
                     {selectedProduct.tags.length > 0 && (
                       <div className="mb-4">
                         <h4
-                          className="mb-2"
-                          style={{ color: "var(--burgundy)" }}
+                          className="mb-2 text-burgundy"
                         >
                           Características
                         </h4>
@@ -1908,8 +1754,7 @@ export default function App() {
 
                     <div className="mb-4">
                       <h4
-                        className="mb-2 flex items-center gap-2"
-                        style={{ color: "var(--burgundy)" }}
+                        className="mb-2 flex items-center gap-2 text-burgundy"
                       >
                         <Package className="w-5 h-5" />
                         Peso: {selectedProduct.weight}
@@ -1918,14 +1763,12 @@ export default function App() {
 
                     <div className="mb-4">
                       <h4
-                        className="mb-2"
-                        style={{ color: "var(--burgundy)" }}
+                        className="mb-2 text-burgundy"
                       >
                         Ingredientes
                       </h4>
                       <ul
-                        className="list-disc list-inside space-y-1"
-                        style={{ color: "#666666" }}
+                        className="list-disc list-inside space-y-1 text-gray-666"
                       >
                         {selectedProduct.ingredients.map(
                           (ingredient, index) => (
@@ -1937,15 +1780,13 @@ export default function App() {
 
                     <div className="mb-6">
                       <h4
-                        className="mb-2 flex items-center gap-2"
-                        style={{ color: "var(--burgundy)" }}
+                        className="mb-2 flex items-center gap-2 text-burgundy"
                       >
                         <Truck className="w-5 h-5" />
                         Opções de Entrega
                       </h4>
                       <ul
-                        className="space-y-1"
-                        style={{ color: "#666666" }}
+                        className="space-y-1 text-gray-666"
                       >
                         {selectedProduct.deliveryOptions.map(
                           (option, index) => (
@@ -1954,8 +1795,7 @@ export default function App() {
                               className="flex items-center gap-2"
                             >
                               <ChevronRight
-                                className="w-4 h-4"
-                                style={{ color: "var(--gold)" }}
+                                className="w-4 h-4 text-gold"
                               />
                               {option}
                             </li>
@@ -1969,11 +1809,7 @@ export default function App() {
                         addToCart(selectedProduct);
                         setSelectedProduct(null);
                       }}
-                      className="w-full py-3 rounded-lg transition-all duration-300 hover:shadow-lg flex items-center justify-center gap-2"
-                      style={{
-                        backgroundColor: "var(--burgundy)",
-                        color: "var(--cream)",
-                      }}
+                      className="w-full py-3 rounded-lg transition-all duration-300 hover:shadow-lg flex items-center justify-center gap-2 bg-dark-burgundy text-cream"
                     >
                       <Plus className="w-5 h-5" />
                       Adicionar ao Carrinho
@@ -1990,11 +1826,7 @@ export default function App() {
       {showProducts && (
         <button
           onClick={() => setShowProducts(false)}
-          className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl"
-          style={{
-            backgroundColor: "var(--burgundy)",
-            color: "var(--cream)",
-          }}
+          className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl bg-dark-burgundy text-cream"
         >
           Voltar para Início
         </button>
