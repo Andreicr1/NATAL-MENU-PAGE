@@ -1,9 +1,12 @@
-import React from "react";
-import { ShoppingCart, Plus, Minus, X, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { ShoppingCart, Plus, Minus, Trash2, CreditCard } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "./ui/sheet";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
+import { StripeCheckoutSession } from "./StripeCheckout";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { formatCartItemsForStripe } from "../utils/stripe";
 
 interface Product {
   id: string;
@@ -41,9 +44,21 @@ export function CartSheet({
   onRemoveItem,
   cartTotal,
 }: CartSheetProps) {
+  const [showCheckout, setShowCheckout] = useState(false);
+  
   const handleCheckout = () => {
-    // Aqui você pode implementar a lógica de checkout
-    alert("Funcionalidade de checkout em desenvolvimento!");
+    setShowCheckout(true);
+  };
+
+  const handleCheckoutSuccess = () => {
+    setShowCheckout(false);
+    onClose();
+    // Clear cart or show success message
+    alert("Pagamento realizado com sucesso! Obrigado pela sua compra.");
+  };
+
+  const handleCheckoutCancel = () => {
+    setShowCheckout(false);
   };
 
   return (
@@ -171,10 +186,11 @@ export function CartSheet({
 
               <button
                 onClick={handleCheckout}
-                className="w-full bg-[#5c0108] text-[#fbf7e8] rounded-[14px] px-[24px] py-[14px] transition-all hover:bg-[#D4AF37] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.3)]"
+                className="w-full bg-[#5c0108] text-[#fbf7e8] rounded-[14px] px-[24px] py-[14px] transition-all hover:bg-[#D4AF37] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.3)] flex items-center justify-center gap-2"
               >
+                <CreditCard className="w-4 h-4" />
                 <span className="font-['Libre_Baskerville',_sans-serif] text-[14px]">
-                  Finalizar Pedido
+                  Finalizar com Stripe
                 </span>
               </button>
 
@@ -190,6 +206,27 @@ export function CartSheet({
           </>
         )}
       </SheetContent>
+
+      {/* Stripe Checkout Dialog */}
+      <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
+        <DialogContent className="sm:max-w-[500px] bg-[#fbf7e8]">
+          <DialogHeader>
+            <DialogTitle className="font-['Libre_Baskerville'] text-[#5c0108]">
+              Checkout Seguro
+            </DialogTitle>
+          </DialogHeader>
+          <StripeCheckoutSession
+            items={formatCartItemsForStripe(cart.map(item => ({
+              id: item.product.id,
+              name: item.product.name,
+              quantity: item.quantity,
+              priceValue: item.product.priceValue,
+            })))}
+            onSuccess={handleCheckoutSuccess}
+            onCancel={handleCheckoutCancel}
+          />
+        </DialogContent>
+      </Dialog>
     </Sheet>
   );
 }

@@ -1,3 +1,4 @@
+import React from "react";
 import svgPaths from "./svg-k56t5hodsm";
 
 function PrimitiveP() {

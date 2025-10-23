@@ -30,6 +30,8 @@
             "@radix-ui/react-toggle": "^1.1.2",
             "@radix-ui/react-toggle-group": "^1.1.2",
             "@radix-ui/react-tooltip": "^1.1.8",
+            "@stripe/react-stripe-js": "^2.8.1",
+            "@stripe/stripe-js": "^4.8.0",
             "@supabase/supabase-js": "^2.47.10",
             "class-variance-authority": "^0.7.1",
             "clsx": "*",
@@ -47,19 +49,25 @@
             "react-resizable-panels": "^2.1.7",
             "recharts": "^2.15.2",
             "sonner": "^2.0.3",
+            "stripe": "^17.4.0",
             "tailwind-merge": "*",
             "vaul": "^1.1.2"
       },
       "devDependencies": {
             "@types/node": "^20.10.0",
+            "@types/react": "^19.2.2",
+            "@types/react-dom": "^19.2.2",
             "@vitejs/plugin-react-swc": "^3.10.2",
             "autoprefixer": "^10.4.21",
             "cssnano": "^7.1.1",
             "postcss": "^8.5.6",
+            "supabase": "^2.53.6",
             "vite": "6.3.5"
       },
       "scripts": {
             "dev": "vite",
-            "build": "vite build"
+            "build": "vite build",
+            "deploy:stripe": "supabase functions deploy stripe-payment",
+            "logs:stripe": "supabase functions logs stripe-payment"
       }
 }

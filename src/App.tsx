@@ -1010,10 +1010,10 @@ export default function App() {
         </div>
 
         {/* Main Content */}
-        <div className="absolute content-stretch flex flex-col items-start left-0 overflow-clip top-[183px] w-full px-4 pt-[24px]">
+        <div className="absolute content-stretch flex flex-col items-start left-0 overflow-clip top-[183px] w-full px-4">
           <div className="w-full max-w-[437.742px] mx-auto">
             {/* Sobre nós Section */}
-            <div className="mb-[24px]">
+            <div className="mb-[24px] mt-[24px]">
               <h1 className="font-['Libre_Baskerville',_sans-serif] text-[rgb(92,1,8)] text-[25px] leading-[30px] mb-[12px]">
                 Sobre nós
               </h1>
