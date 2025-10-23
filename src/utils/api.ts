@@ -1,6 +1,12 @@
-import { projectId, publicAnonKey } from './supabase/info';
+// Use environment variables for Supabase configuration
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-const API_BASE = `https://${projectId}.supabase.co/functions/v1/make-server-c42493b2`;
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  throw new Error('Missing Supabase environment variables. Please check your .env.local file.');
+}
+
+const API_BASE = `${SUPABASE_URL}/functions/v1/make-server-c42493b2`;
 
 interface Product {
   id: string;
@@ -26,7 +32,7 @@ export async function fetchProducts(categoryId: string): Promise<Product[]> {
   try {
     const response = await fetch(`${API_BASE}/products/${categoryId}`, {
       headers: {
-        'Authorization': `Bearer ${publicAnonKey}`,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       },
     });
     
@@ -50,7 +56,7 @@ export async function updateProducts(categoryId: string, products: Product[]): P
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${publicAnonKey}`,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       },
       body: JSON.stringify({ products }),
     });
@@ -74,7 +80,7 @@ export async function updateProduct(categoryId: string, productId: string, updat
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${publicAnonKey}`,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       },
       body: JSON.stringify(updates),
     });
@@ -98,7 +104,7 @@ export async function deleteProduct(categoryId: string, productId: string): Prom
     const response = await fetch(`${API_BASE}/product/${categoryId}/${productId}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${publicAnonKey}`,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       },
     });
     
@@ -121,7 +127,7 @@ export async function initializeProducts(categories: Array<{ id: string; name: s
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${publicAnonKey}`,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       },
       body: JSON.stringify({ categories }),
     });
@@ -149,7 +155,7 @@ export async function uploadProductImage(file: File): Promise<{ success: boolean
     const response = await fetch(`${API_BASE}/upload-image`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${publicAnonKey}`,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       },
       body: formData,
     });
