@@ -1,10 +1,7 @@
-// Use environment variables for Supabase configuration
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  throw new Error('Missing Supabase environment variables. Please check your .env.local file.');
-}
+// Supabase configuration - Temporarily using hardcoded keys
+// TODO: Replace with environment variables when .env.local is configured
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://mypdmnucmkigqshafrwx.supabase.co';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15cGRtbnVjbWtpZ3FzaGFmcnd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MTAxNzMsImV4cCI6MjA3NjM4NjE3M30.LTzyrfI4unf-KkhRktZyEQCPUoWphpWAo4U0kQ2Y5u8';
 
 const API_BASE = `${SUPABASE_URL}/functions/v1/make-server-c42493b2`;
 
