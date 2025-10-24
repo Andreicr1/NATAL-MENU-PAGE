@@ -21,6 +21,11 @@ app.use("/*", cors({
   credentials: true,
 }));
 
+// Handle OPTIONS preflight requests
+app.options("/*", (c) => {
+  return c.text("", 204);
+});
+
 // Health check
 app.get("/stripe-c42493b2/health", (c) => {
   return c.json({ status: "ok", service: "stripe-integration" });
