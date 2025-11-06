@@ -53,7 +53,7 @@
     },
     build: {
       target: 'es2015',
-      outDir: 'build',
+      outDir: 'dist',
     },
     server: {
       port: 3000,

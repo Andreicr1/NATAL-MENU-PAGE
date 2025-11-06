@@ -1,0 +1,101 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: DynamoDB com DAX Cache (Opcional - para alta performance)
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues:
+      - production
+      - staging
+
+Resources:
+  # DAX Subnet Group
+  DAXSubnetGroup:
+    Type: AWS::DAX::SubnetGroup
+    Properties:
+      SubnetGroupName: !Sub '${AWS::StackName}-dax-subnet-group'
+      Description: Subnet group for DAX cluster
+      SubnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+
+  # DAX Cluster (Cache para DynamoDB)
+  DAXCluster:
+    Type: AWS::DAX::Cluster
+    Properties:
+      ClusterName: !Sub '${AWS::StackName}-dax-cluster'
+      Description: DAX cache for products table
+      NodeType: dax.t3.small  # Menor instância para começar
+      ReplicationFactor: 1     # Sem réplicas para economizar
+      IAMRoleARN: !GetAtt DAXRole.Arn
+      SubnetGroupName: !Ref DAXSubnetGroup
+      SecurityGroupIds:
+        - !Ref DAXSecurityGroup
+      SSESpecification:
+        SSEEnabled: true
+
+  # IAM Role para DAX
+  DAXRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: dax.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+
+  # Security Group para DAX
+  DAXSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for DAX cluster
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8111
+          ToPort: 8111
+          SourceSecurityGroupId: !Ref LambdaSecurityGroup
+
+  # VPC (necessária para DAX)
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select [0, !GetAZs '']
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Select [1, !GetAZs '']
+
+  LambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Lambda functions
+      VpcId: !Ref VPC
+
+Outputs:
+  DAXClusterEndpoint:
+    Description: DAX cluster endpoint
+    Value: !GetAtt DAXCluster.ClusterDiscoveryEndpoint
+    Export:
+      Name: !Sub '${AWS::StackName}-DAXEndpoint'
+
+# NOTA: DAX adiciona custo (~$0.30/hora = ~$220/mês para dax.t3.small)
+# Use apenas se tiver >1000 requisições/minuto
+# Para tráfego menor, cache em Lambda é suficiente

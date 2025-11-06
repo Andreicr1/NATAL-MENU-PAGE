@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Edit, Trash2, Save, X, Plus, DollarSign, Package, Upload, Image as ImageIcon } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "./ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
@@ -157,9 +157,7 @@ export function AdminPanel({
             <Package className="w-[24px] h-[24px] text-[#d4af37]" />
             Admin - {categoryName}
           </SheetTitle>
-          <SheetDescription className="font-['Libre_Baskerville',_sans-serif] text-[#e8d4a2] text-[13px]">
-            Gerencie produtos e preços
-          </SheetDescription>
+
         </SheetHeader>
 
         {loading ? (

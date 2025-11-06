@@ -1,12 +1,20 @@
-import { useState } from "react";
-import { ShoppingCart, Plus, Minus, Trash2, CreditCard } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "./ui/sheet";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { ScrollArea } from "./ui/scroll-area";
-import { Separator } from "./ui/separator";
-import { StripeCheckoutSession } from "./StripeCheckout";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { formatCartItemsForStripe } from "../utils/stripe";
+import {
+  Loader2,
+  MapPin,
+  Minus,
+  Plus,
+  ShoppingCart,
+  Trash2,
+} from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { calculateShipping } from '../utils/shipping';
+import { ImageWithFallback } from './figma/ImageWithFallback';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { Input } from './ui/input';
+import { Separator } from './ui/separator';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
+import { UnifiedCheckout } from './UnifiedCheckout';
 
 interface Product {
   id: string;
@@ -45,38 +53,96 @@ export function CartSheet({
   cartTotal,
 }: CartSheetProps) {
   const [showCheckout, setShowCheckout] = useState(false);
-  
+  const [shippingCEP, setShippingCEP] = useState('');
+  const [shippingCost, setShippingCost] = useState<number | null>(null);
+  const [shippingDistance, setShippingDistance] = useState<number | null>(null);
+  const [calculatingShipping, setCalculatingShipping] = useState(false);
+  const [showScrollIndicator, setShowScrollIndicator] = useState(true);
+
+  const totalWithShipping = cartTotal + (shippingCost || 0);
+
+  // Detectar scroll para ocultar indicador
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const scrollTop = e.currentTarget.scrollTop;
+    if (scrollTop > 50) {
+      setShowScrollIndicator(false);
+    } else {
+      setShowScrollIndicator(true);
+    }
+  };
+
+  // Formatar CEP (88010-001)
+  const formatCEP = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 5) {
+      return numbers;
+    }
+    return `${numbers.slice(0, 5)}-${numbers.slice(5, 8)}`;
+  };
+
+  const handleCEPChange = async (cep: string) => {
+    const cleanCep = cep.replace(/\D/g, '');
+    setShippingCEP(formatCEP(cleanCep));
+
+    if (cleanCep.length === 8) {
+      setCalculatingShipping(true);
+      try {
+        const result = await calculateShipping(cleanCep);
+
+        if (result.success && result.value !== undefined) {
+          setShippingCost(result.value);
+          setShippingDistance(result.distance || null);
+          toast.success(
+            `Frete: R$ ${result.value.toFixed(2)} (${result.distance?.toFixed(
+              1
+            )} km)`
+          );
+        } else {
+          setShippingCost(null);
+          setShippingDistance(null);
+          toast.error(result.message || 'Área fora de entrega');
+        }
+      } catch (error) {
+        setShippingCost(null);
+        setShippingDistance(null);
+        toast.error('Erro ao calcular frete');
+      } finally {
+        setCalculatingShipping(false);
+      }
+    } else {
+      setShippingCost(null);
+      setShippingDistance(null);
+    }
+  };
+
   const handleCheckout = () => {
+    if (!shippingCost) {
+      toast.error('Por favor, informe o CEP para calcular o frete');
+      return;
+    }
     setShowCheckout(true);
   };
 
   const handleCheckoutSuccess = () => {
     setShowCheckout(false);
+    setShippingCEP('');
+    setShippingCost(null);
+    setShippingDistance(null);
     onClose();
-    // Clear cart or show success message
-    alert("Pagamento realizado com sucesso! Obrigado pela sua compra.");
-  };
-
-  const handleCheckoutCancel = () => {
-    setShowCheckout(false);
   };
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent 
-        side="right" 
-        className="w-full sm:max-w-[400px] bg-[#fbf7e8] border-l-2 border-[#d4af37] p-0 flex flex-col"
+      <SheetContent
+        side="right"
+        className="w-full sm:max-w-[400px] bg-[#fbf7e8] border-l-2 border-[#d4af37] p-0 flex flex-col h-[100vh]"
       >
-        <SheetHeader className="px-[24px] pt-[24px] pb-[16px] bg-[#5c0108]">
+        {/* Header Fixo */}
+        <SheetHeader className="px-[24px] pt-[24px] pb-[16px] bg-[#5c0108] flex-shrink-0">
           <SheetTitle className="font-['Libre_Baskerville',_sans-serif] text-[#fbf7e8] text-[22px] flex items-center gap-[12px]">
             <ShoppingCart className="w-[24px] h-[24px] text-[#d4af37]" />
             Carrinho de Compras
           </SheetTitle>
-          <SheetDescription className="font-['Libre_Baskerville',_sans-serif] text-[#e8d4a2] text-[13px]">
-            {cart.length === 0 
-              ? "Seu carrinho está vazio" 
-              : `${cart.length} ${cart.length === 1 ? 'item' : 'itens'} no carrinho`}
-          </SheetDescription>
         </SheetHeader>
 
         {cart.length === 0 ? (
@@ -91,10 +157,38 @@ export function CartSheet({
           </div>
         ) : (
           <>
-            <ScrollArea className="flex-1 px-[24px] py-[16px]">
+            {/* Lista de Produtos com Scroll */}
+            <div
+              className="flex-1 overflow-y-auto overflow-x-hidden px-[24px] py-[16px] relative"
+              style={{ maxHeight: 'calc(100vh - 550px)' }}
+              onScroll={handleScroll}
+            >
+              {/* Indicador de Scroll */}
+              {showScrollIndicator && cart.length > 2 && (
+                <div className="sticky bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#fbf7e8] to-transparent pointer-events-none flex items-end justify-center pb-2 z-10">
+                  <div className="animate-bounce text-[#5c0108] opacity-60">
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              )}
               <div className="space-y-[20px]">
-                {cart.map((item) => (
-                  <div key={item.product.id} className="flex gap-[12px] pb-[20px] border-b border-[#d4af37]/30">
+                {cart.map(item => (
+                  <div
+                    key={item.product.id}
+                    className="flex gap-[12px] pb-[20px] border-b border-[#d4af37]/30"
+                  >
                     {/* Product Image */}
                     <div className="w-[80px] h-[107px] rounded-[8px] overflow-hidden bg-[#f5f5f5] flex-shrink-0">
                       <ImageWithFallback
@@ -127,7 +221,12 @@ export function CartSheet({
                       <div className="flex items-center gap-[12px] mt-auto">
                         <div className="flex items-center gap-[8px] bg-white border border-[#d4af37] rounded-[8px] px-[8px] py-[4px]">
                           <button
-                            onClick={() => onUpdateQuantity(item.product.id, item.quantity - 1)}
+                            onClick={() =>
+                              onUpdateQuantity(
+                                item.product.id,
+                                item.quantity - 1
+                              )
+                            }
                             className="text-[#5c0108] hover:text-[#d4af37] transition-colors"
                             aria-label="Diminuir quantidade"
                           >
@@ -137,7 +236,12 @@ export function CartSheet({
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() => onUpdateQuantity(item.product.id, item.quantity + 1)}
+                            onClick={() =>
+                              onUpdateQuantity(
+                                item.product.id,
+                                item.quantity + 1
+                              )
+                            }
                             className="text-[#5c0108] hover:text-[#d4af37] transition-colors"
                             aria-label="Aumentar quantidade"
                           >
@@ -145,17 +249,18 @@ export function CartSheet({
                           </button>
                         </div>
                         <span className="font-['Libre_Baskerville',_sans-serif] text-[#5c0108] text-[13px]">
-                          Subtotal: R$ {(item.product.priceValue * item.quantity).toFixed(2)}
+                          Subtotal: R${' '}
+                          {(item.product.priceValue * item.quantity).toFixed(2)}
                         </span>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-            </ScrollArea>
+            </div>
 
-            {/* Cart Summary */}
-            <div className="px-[24px] pb-[24px] pt-[16px] border-t-2 border-[#d4af37] bg-[#fbf7e8]">
+            {/* Checkout Fixo no Rodapé */}
+            <div className="px-[24px] pb-[24px] pt-[16px] border-t-2 border-[#d4af37] bg-[#fbf7e8] flex-shrink-0">
               <div className="mb-[20px]">
                 <div className="flex justify-between items-center mb-[8px]">
                   <span className="font-['Libre_Baskerville',_sans-serif] text-[#5c0108] text-[14px]">
@@ -165,32 +270,66 @@ export function CartSheet({
                     R$ {cartTotal.toFixed(2)}
                   </span>
                 </div>
+
+                {/* Campo CEP para calcular frete */}
+                <div className="mb-[12px]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <MapPin className="w-4 h-4 text-[#5c0108]" />
+                    <span className="font-['Libre_Baskerville',_sans-serif] text-[#5c0108] text-[14px]">
+                      CEP de Entrega:
+                    </span>
+                  </div>
+                  <Input
+                    placeholder="00000-000"
+                    value={shippingCEP}
+                    onChange={e => handleCEPChange(e.target.value)}
+                    maxLength={9}
+                    className="text-sm border-[#d4af37]"
+                    disabled={calculatingShipping}
+                  />
+                  {calculatingShipping && (
+                    <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      Calculando frete...
+                    </p>
+                  )}
+                </div>
+
                 <div className="flex justify-between items-center mb-[12px]">
                   <span className="font-['Libre_Baskerville',_sans-serif] text-[#5c0108] text-[14px]">
                     Frete:
                   </span>
                   <span className="font-['Libre_Baskerville',_sans-serif] text-[#5c0108] text-[14px]">
-                    Calculado no checkout
+                    {shippingCost !== null
+                      ? `R$ ${shippingCost.toFixed(2)}`
+                      : '-'}
                   </span>
                 </div>
+
+                {shippingDistance !== null && (
+                  <p className="text-xs text-gray-600 mb-[12px] text-right">
+                    Distância: {shippingDistance.toFixed(1)} km
+                  </p>
+                )}
+
                 <Separator className="bg-[#d4af37] mb-[12px]" />
                 <div className="flex justify-between items-center">
                   <span className="font-['Libre_Baskerville',_sans-serif] text-[#5c0108] text-[18px]">
                     Total:
                   </span>
                   <span className="font-['Libre_Baskerville',_sans-serif] text-[#d4af37] text-[20px]">
-                    R$ {cartTotal.toFixed(2)}
+                    R$ {totalWithShipping.toFixed(2)}
                   </span>
                 </div>
               </div>
 
+              {/* Botão Pagar Único */}
               <button
-                onClick={handleCheckout}
-                className="w-full bg-[#5c0108] text-[#fbf7e8] rounded-[14px] px-[24px] py-[14px] transition-all hover:bg-[#D4AF37] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.3)] flex items-center justify-center gap-2"
+                onClick={() => handleCheckout()}
+                className="w-full bg-[#5c0108] text-[#fbf7e8] rounded-[14px] px-[24px] py-[16px] transition-all hover:bg-[#D4AF37] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.3)] flex items-center justify-center gap-2 font-semibold"
               >
-                <CreditCard className="w-4 h-4" />
-                <span className="font-['Libre_Baskerville',_sans-serif] text-[14px]">
-                  Finalizar com Stripe
+                <span className="font-['Libre_Baskerville',_sans-serif] text-[16px]">
+                  Pagar
                 </span>
               </button>
 
@@ -207,23 +346,26 @@ export function CartSheet({
         )}
       </SheetContent>
 
-      {/* Stripe Checkout Dialog */}
+      {/* Checkout Dialog */}
       <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
-        <DialogContent className="sm:max-w-[500px] bg-[#fbf7e8]">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto bg-[#fbf7e8]">
           <DialogHeader>
             <DialogTitle className="font-['Libre_Baskerville'] text-[#5c0108]">
-              Checkout Seguro
+              Finalizar Pedido
             </DialogTitle>
           </DialogHeader>
-          <StripeCheckoutSession
-            items={formatCartItemsForStripe(cart.map(item => ({
+
+          <UnifiedCheckout
+            cartItems={cart.map(item => ({
               id: item.product.id,
               name: item.product.name,
               quantity: item.quantity,
               priceValue: item.product.priceValue,
-            })))}
+            }))}
+            cartTotal={cartTotal}
+            initialCEP={shippingCEP.replace(/\D/g, '')}
+            initialShippingCost={shippingCost}
             onSuccess={handleCheckoutSuccess}
-            onCancel={handleCheckoutCancel}
           />
         </DialogContent>
       </Dialog>

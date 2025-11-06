@@ -1,0 +1,44 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build
+        run: npm run build
+        env:
+          VITE_AWS_API_URL: ${{ secrets.VITE_AWS_API_URL }}
+          VITE_ADMIN_PASSWORD: ${{ secrets.VITE_ADMIN_PASSWORD }}
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      
+      - name: Deploy to S3
+        run: |
+          aws s3 sync dist/ s3://natal-menu-683373797860/ --delete --exclude "products/*"
+          aws s3 cp admin.html s3://natal-menu-683373797860/admin.html
+      
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation --distribution-id E3VP7VX4XVPPIO --paths "/*"

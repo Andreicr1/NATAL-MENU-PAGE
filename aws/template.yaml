@@ -1,0 +1,354 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Natal Menu Page - Backend Infrastructure
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Timeout: 10  # Reduzido de 30s para 10s
+    MemorySize: 512  # Otimizado para cold start
+    Environment:
+      Variables:
+        PRODUCTS_TABLE: !Ref ProductsTable
+        ORDERS_TABLE: !Ref OrdersTable
+        INVENTORY_TABLE: !Ref InventoryTable
+        S3_BUCKET: natal-menu-products-images
+        SECRET_NAME: natal-menu/mercadopago
+        NODE_OPTIONS: '--enable-source-maps'  # Melhor debugging
+
+Resources:
+  # DynamoDB Tables
+  ProductsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: natal-products
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: categoryId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: category-index
+          KeySchema:
+            - AttributeName: categoryId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  OrdersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: natal-orders
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: orderId
+          AttributeType: S
+        - AttributeName: createdAt
+          AttributeType: N
+      KeySchema:
+        - AttributeName: orderId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: date-index
+          KeySchema:
+            - AttributeName: createdAt
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  InventoryTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: natal-inventory
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: productId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: productId
+          KeyType: HASH
+
+  # API Gateway HTTP (mais simples, sem dependencia circular)
+  ApiGateway:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+        AllowHeaders:
+          - '*'
+        AllowOrigins:
+          - '*'
+
+  # Lambda Functions
+  GetProductsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/products/
+      Handler: get.handler
+      MemorySize: 256  # Leitura simples, menos memória
+      Timeout: 5  # Timeout mais curto para leitura
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref ProductsTable
+      Environment:
+        Variables:
+          CACHE_TTL: '300'  # Cache de 5 minutos
+      Events:
+        GetProducts:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /products
+            Method: get
+        GetProductsByCategory:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /products/{categoryId}
+            Method: get
+
+  CreateProductFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/products/
+      Handler: create.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProductsTable
+      Events:
+        CreateProduct:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /products
+            Method: post
+
+  DeleteProductFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/products/
+      Handler: delete.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProductsTable
+      Events:
+        DeleteProduct:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /products/{id}
+            Method: delete
+
+  UpdateInventoryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/inventory/
+      Handler: update.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref InventoryTable
+      Events:
+        UpdateInventory:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /inventory/{productId}
+            Method: put
+
+  GetInventoryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/inventory/
+      Handler: get.handler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref InventoryTable
+      Events:
+        GetInventory:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /inventory/{productId}
+            Method: get
+
+  CreateOrderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/orders/
+      Handler: create.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref OrdersTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref InventoryTable
+      Events:
+        CreateOrder:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /orders
+            Method: post
+
+  GetOrdersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/orders/
+      Handler: get.handler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrdersTable
+      Events:
+        GetOrders:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /orders
+            Method: get
+
+  GetOrderStatusFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/orders/
+      Handler: get-status.handler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrdersTable
+      Events:
+        GetOrderStatus:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /orders/{orderId}/status
+            Method: get
+
+  CreatePreferenceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/payments/
+      Handler: create-preference.handler
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+            Resource: arn:aws:secretsmanager:us-east-1:683373797860:secret:natal-menu/mercadopago-*
+      Events:
+        CreatePreference:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /payments/preference
+            Method: post
+
+  CreatePixPaymentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/payments/
+      Handler: create-pix-payment.handler
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+            Resource: arn:aws:secretsmanager:us-east-1:683373797860:secret:natal-menu/mercadopago-*
+      Events:
+        CreatePixPayment:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /payments/pix
+            Method: post
+
+  PaymentWebhookFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/payments/
+      Handler: webhook.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref OrdersTable
+        - Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+            Resource: arn:aws:secretsmanager:us-east-1:683373797860:secret:natal-menu/mercadopago-*
+      Events:
+        Webhook:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /payments/webhook
+            Method: post
+
+  GetPaymentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/payments/
+      Handler: get-payment.handler
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+            Resource: arn:aws:secretsmanager:us-east-1:683373797860:secret:natal-menu/mercadopago-*
+      Events:
+        GetPayment:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /payments/{paymentId}
+            Method: get
+
+  GetPresignedUrlFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/upload/
+      Handler: presigned-url.handler
+      Policies:
+        - S3CrudPolicy:
+            BucketName: natal-menu-products-images
+      Events:
+        GetPresignedUrl:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /upload/presigned-url
+            Method: post
+
+  DashboardStatsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/analytics/
+      Handler: dashboard-stats.handler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrdersTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref ProductsTable
+      Events:
+        GetDashboardStats:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /analytics/dashboard
+            Method: get
+
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL
+    Value: !GetAtt ApiGateway.ApiEndpoint
+  ProductsTableName:
+    Value: !Ref ProductsTable
+  OrdersTableName:
+    Value: !Ref OrdersTable
+  InventoryTableName:
+    Value: !Ref InventoryTable

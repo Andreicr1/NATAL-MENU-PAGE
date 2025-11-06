@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sweet Bar - Painel Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+    body { font-family: 'Libre Baskerville', serif; }
+  </style>
+</head>
+<body class="bg-[#fbf7e8] min-h-screen">
+  <!-- Login Screen -->
+  <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border-2 border-[#d4af37]">
+      <div class="text-center mb-8">
+        <h1 class="text-3xl text-[#5c0108] mb-2">🍫 Sweet Bar</h1>
+        <p class="text-[#d4af37]">Painel Administrativo</p>
+      </div>
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label class="block text-[#5c0108] mb-2">Senha de Acesso</label>
+          <input
+            type="password"
+            id="password"
+            class="w-full px-4 py-3 border-2 border-[#d4af37] rounded-lg focus:outline-none focus:border-[#5c0108]"
+            placeholder="Digite a senha"
+          />
+        </div>
+        <button
+          type="submit"
+          class="w-full bg-[#5c0108] text-[#fbf7e8] py-3 rounded-lg hover:bg-[#7c1c3d] transition-colors"
+        >
+          Entrar
+        </button>
+      </form>
+      <p id="loginError" class="text-red-600 text-sm mt-4 text-center hidden"></p>
+    </div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="adminPanel" class="hidden">
+    <!-- Header -->
+    <header class="bg-[#5c0108] text-[#fbf7e8] p-4 shadow-lg">
+      <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-2xl">🍫 Sweet Bar Admin</h1>
+        <button onclick="logout()" class="bg-[#d4af37] text-[#5c0108] px-4 py-2 rounded-lg hover:bg-[#e8d4a2]">
+          Sair
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-4 max-w-6xl">
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-lg p-6 border-2 border-[#d4af37]">
+          <div class="text-[#5c0108] text-sm mb-2">Total de Produtos</div>
+          <div class="text-3xl text-[#d4af37]" id="totalProducts">0</div>
+        </div>
+        <div class="bg-white rounded-lg p-6 border-2 border-[#d4af37]">
+          <div class="text-[#5c0108] text-sm mb-2">Categorias</div>
+          <div class="text-3xl text-[#d4af37]" id="totalCategories">7</div>
+        </div>
+        <div class="bg-white rounded-lg p-6 border-2 border-[#d4af37]">
+          <div class="text-[#5c0108] text-sm mb-2">Status</div>
+          <div class="text-lg text-green-600">✓ Online</div>
+        </div>
+      </div>
+
+      <!-- Category Selector -->
+      <div class="bg-white rounded-lg p-6 mb-6 border-2 border-[#d4af37]">
+        <label class="block text-[#5c0108] mb-3 text-lg">Selecione a Categoria</label>
+        <select id="categorySelect" class="w-full px-4 py-3 border-2 border-[#d4af37] rounded-lg focus:outline-none focus:border-[#5c0108]">
+          <option value="advent">🎁 Calendário do Advento</option>
+          <option value="panettone">🎄 Panetone</option>
+          <option value="bars">🍫 Barras de Chocolate</option>
+          <option value="special">⭐ Doces Especiais</option>
+          <option value="truffles">🌰 Trufas</option>
+          <option value="giftboxes">🎀 Caixas de Presente</option>
+          <option value="cards">✉️ Cartões de Natal</option>
+        </select>
+      </div>
+
+      <!-- Add Product Button -->
+      <div class="mb-6">
+        <button onclick="showAddProduct()" class="bg-[#5c0108] text-[#fbf7e8] px-6 py-3 rounded-lg hover:bg-[#7c1c3d] transition-colors">
+          + Adicionar Novo Produto
+        </button>
+      </div>
+
+      <!-- Products List -->
+      <div id="productsList" class="space-y-4">
+        <div class="text-center text-[#5c0108] py-8">Carregando produtos...</div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Product Modal -->
+  <div id="productModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl text-[#5c0108]" id="modalTitle">Adicionar Produto</h2>
+        <button onclick="closeModal()" class="text-[#5c0108] text-2xl">&times;</button>
+      </div>
+
+      <form id="productForm" class="space-y-4">
+        <input type="hidden" id="productId">
+
+        <div>
+          <label class="block text-[#5c0108] mb-2">Nome do Produto *</label>
+          <input type="text" id="productName" required class="w-full px-4 py-2 border-2 border-[#d4af37] rounded-lg focus:outline-none focus:border-[#5c0108]">
+        </div>
+
+        <div>
+          <label class="block text-[#5c0108] mb-2">Descrição *</label>
+          <textarea id="productDescription" required rows="3" class="w-full px-4 py-2 border-2 border-[#d4af37] rounded-lg focus:outline-none focus:border-[#5c0108]"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[#5c0108] mb-2">Preço (R$) *</label>
+            <input type="number" id="productPrice" required step="0.01" class="w-full px-4 py-2 border-2 border-[#d4af37] rounded-lg focus:outline-none focus:border-[#5c0108]">
+          </div>
+          <div>
+            <label class="block text-[#5c0108] mb-2">Peso *</label>
+            <input type="text" id="productWeight" required placeholder="Ex: 100g" class="w-full px-4 py-2 border-2 border-[#d4af37] rounded-lg focus:outline-none focus:border-[#5c0108]">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[#5c0108] mb-2">Imagem do Produto *</label>
+          <div class="space-y-2">
+            <div class="flex gap-2">
+              <button type="button" onclick="document.getElementById('imageFile').click()" class="flex-1 bg-[#d4af37] text-[#5c0108] px-4 py-2 rounded-lg hover:bg-[#e8d4a2] border-2 border-[#d4af37]">
+                📁 Escolher Arquivo
+              </button>
+              <button type="button" onclick="toggleImageUrl()" class="flex-1 bg-white text-[#5c0108] px-4 py-2 rounded-lg hover:bg-gray-50 border-2 border-[#d4af37]">
+                🔗 Usar URL
+              </button>
+            </div>
+            <input type="file" id="imageFile" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+            <input type="url" id="productImage" class="w-full px-4 py-2 border-2 border-[#d4af37] rounded-lg focus:outline-none focus:border-[#5c0108] hidden">
+            <div id="imagePreview" class="hidden">
+              <div class="relative">
+                <img id="previewImg" class="w-full h-48 object-cover rounded-lg border-2 border-[#d4af37]">
+                <button type="button" onclick="clearImage()" class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 hover:bg-red-700">
+                  ✕
+                </button>
+              </div>
+              <p id="imageName" class="text-sm text-[#5c0108] mt-2"></p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[#5c0108] mb-2">Ingredientes (um por linha)</label>
+          <textarea id="productIngredients" rows="3" placeholder="Chocolate belga&#10;Açúcar&#10;Leite" class="w-full px-4 py-2 border-2 border-[#d4af37] rounded-lg focus:outline-none focus:border-[#5c0108]"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-[#5c0108] mb-2">Tags</label>
+          <div class="flex gap-4">
+            <label class="flex items-center">
+              <input type="checkbox" value="vegano" class="product-tag mr-2">
+              <span>Vegano</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" value="sem-lactose" class="product-tag mr-2">
+              <span>Sem Lactose</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" value="sem-gluten" class="product-tag mr-2">
+              <span>Sem Glúten</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="flex items-center">
+            <input type="checkbox" id="productFeatured" class="mr-2">
+            <span class="text-[#5c0108]">⭐ Produto em Destaque</span>
+          </label>
+        </div>
+
+        <div class="flex gap-4 pt-4">
+          <button type="submit" class="flex-1 bg-[#5c0108] text-[#fbf7e8] py-3 rounded-lg hover:bg-[#7c1c3d]">
+            Salvar Produto
+          </button>
+          <button type="button" onclick="closeModal()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Usar a variável de ambiente ou fallback para a URL de produção
+    const API_URL = 'https://963pa03698.execute-api.us-east-1.amazonaws.com';
+    const PASSWORD = 'sweetbar2025'; // TODO: Mover para autenticação JWT
+    const S3_BUCKET = 'natal-menu-products-images';
+    let currentCategory = 'advent';
+    let products = [];
+    let uploadedImageUrl = '';
+
+    // Login
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const password = document.getElementById('password').value;
+      if (password === PASSWORD) {
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('adminPanel').classList.remove('hidden');
+        loadProducts();
+      } else {
+        const error = document.getElementById('loginError');
+        error.textContent = 'Senha incorreta!';
+        error.classList.remove('hidden');
+      }
+    });
+
+    function logout() {
+      document.getElementById('loginScreen').classList.remove('hidden');
+      document.getElementById('adminPanel').classList.add('hidden');
+      document.getElementById('password').value = '';
+    }
+
+    // Category change
+    document.getElementById('categorySelect').addEventListener('change', (e) => {
+      currentCategory = e.target.value;
+      loadProducts();
+    });
+
+    // Load products
+    async function loadProducts() {
+      try {
+        const response = await fetch(`${API_URL}/products/${currentCategory}`);
+        products = await response.json();
+        document.getElementById('totalProducts').textContent = products.length;
+        renderProducts();
+      } catch (error) {
+        console.error('Erro ao carregar produtos:', error);
+        document.getElementById('productsList').innerHTML =
+          '<div class="text-center text-red-600 py-8">Erro ao carregar produtos</div>';
+      }
+    }
+
+    // Render products
+    function renderProducts() {
+      const container = document.getElementById('productsList');
+      if (products.length === 0) {
+        container.innerHTML = '<div class="text-center text-[#5c0108] py-8">Nenhum produto nesta categoria</div>';
+        return;
+      }
+
+      container.innerHTML = products.map(product => `
+        <div class="bg-white rounded-lg p-4 border-2 border-[#d4af37] flex gap-4">
+          <img src="${product.image}" alt="${product.name}" class="w-24 h-24 object-cover rounded-lg">
+          <div class="flex-1">
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <h3 class="text-lg text-[#5c0108] font-bold">${product.name}</h3>
+                <p class="text-[#d4af37] text-xl">R$ ${product.priceValue.toFixed(2)}</p>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="editProduct('${product.id}')" class="bg-[#d4af37] text-[#5c0108] px-4 py-2 rounded-lg hover:bg-[#e8d4a2]">
+                  Editar
+                </button>
+                <button onclick="deleteProduct('${product.id}')" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                  Excluir
+                </button>
+              </div>
+            </div>
+            <p class="text-sm text-gray-600 mb-2">${product.description}</p>
+            <div class="flex gap-2 text-xs">
+              <span class="bg-[#fbf7e8] px-2 py-1 rounded">${product.weight}</span>
+              ${product.featured ? '<span class="bg-[#d4af37] text-[#5c0108] px-2 py-1 rounded">⭐ Destaque</span>' : ''}
+              ${product.tags.map(tag => `<span class="bg-green-100 text-green-800 px-2 py-1 rounded">${tag}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Toggle image URL input
+    function toggleImageUrl() {
+      const urlInput = document.getElementById('productImage');
+      const fileInput = document.getElementById('imageFile');
+      const preview = document.getElementById('imagePreview');
+
+      if (urlInput.classList.contains('hidden')) {
+        urlInput.classList.remove('hidden');
+        fileInput.value = '';
+        preview.classList.add('hidden');
+        uploadedImageUrl = '';
+      } else {
+        urlInput.classList.add('hidden');
+        urlInput.value = '';
+      }
+    }
+
+    // Compress image
+    async function compressImage(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            // Max dimensions
+            const maxWidth = 1200;
+            const maxHeight = 1200;
+
+            if (width > height) {
+              if (width > maxWidth) {
+                height *= maxWidth / width;
+                width = maxWidth;
+              }
+            } else {
+              if (height > maxHeight) {
+                width *= maxHeight / height;
+                height = maxHeight;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob((blob) => {
+              resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+            }, 'image/jpeg', 0.85);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Handle image upload
+    async function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor, selecione um arquivo de imagem');
+        return;
+      }
+
+      // Compress image
+      const compressedFile = await compressImage(file);
+
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById('previewImg').src = e.target.result;
+        document.getElementById('imageName').textContent = `${file.name} (${(compressedFile.size / 1024).toFixed(0)}KB)`;
+        document.getElementById('imagePreview').classList.remove('hidden');
+      };
+      reader.readAsDataURL(compressedFile);
+
+      // Upload to S3
+      try {
+        // Get presigned URL
+        console.log('Solicitando URL pré-assinada para:', compressedFile.name);
+        const presignedResponse = await fetch(`${API_URL}/upload/presigned-url`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            fileName: compressedFile.name,
+            fileType: 'image/jpeg'
+          })
+        });
+
+        if (!presignedResponse.ok) {
+          const errorText = await presignedResponse.text();
+          console.error('Erro ao obter URL de upload:', errorText);
+          throw new Error('Falha ao obter URL de upload: ' + errorText);
+        }
+
+        const { uploadUrl, fileUrl } = await presignedResponse.json();
+        console.log('URL de upload recebida:', uploadUrl);
+
+        // Upload file to S3
+        console.log('Enviando arquivo para S3...');
+        const uploadResponse = await fetch(uploadUrl, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'image/jpeg',
+            'x-amz-acl': 'public-read'
+          },
+          body: compressedFile
+        });
+
+        if (!uploadResponse.ok) {
+          const errorText = await uploadResponse.text();
+          console.error('Erro no upload S3:', errorText);
+          throw new Error('Falha no upload: ' + errorText);
+        }
+
+        uploadedImageUrl = fileUrl;
+        console.log('Upload concluído! URL da imagem:', fileUrl);
+        alert('Imagem enviada com sucesso!');
+
+      } catch (error) {
+        console.error('Erro no upload:', error);
+        alert('Erro ao fazer upload: ' + error.message);
+      }
+    }
+
+    // Clear image
+    function clearImage() {
+      uploadedImageUrl = '';
+      document.getElementById('imageFile').value = '';
+      document.getElementById('productImage').value = '';
+      document.getElementById('imagePreview').classList.add('hidden');
+      document.getElementById('previewImg').src = '';
+      document.getElementById('imageName').textContent = '';
+    }
+
+    // Show add product modal
+    function showAddProduct() {
+      document.getElementById('modalTitle').textContent = 'Adicionar Produto';
+      document.getElementById('productForm').reset();
+      document.getElementById('productId').value = '';
+      clearImage();
+      document.getElementById('productImage').classList.add('hidden');
+      document.getElementById('productModal').classList.remove('hidden');
+    }
+
+    // Edit product
+    function editProduct(id) {
+      const product = products.find(p => p.id === id);
+      if (!product) return;
+
+      document.getElementById('modalTitle').textContent = 'Editar Produto';
+      document.getElementById('productId').value = product.id;
+      document.getElementById('productName').value = product.name;
+      document.getElementById('productDescription').value = product.description;
+      document.getElementById('productPrice').value = product.priceValue;
+      document.getElementById('productWeight').value = product.weight;
+      document.getElementById('productIngredients').value = product.ingredients.join('\n');
+      document.getElementById('productFeatured').checked = product.featured || false;
+
+      document.querySelectorAll('.product-tag').forEach(checkbox => {
+        checkbox.checked = product.tags.includes(checkbox.value);
+      });
+
+      // Show existing image
+      clearImage();
+      if (product.image) {
+        uploadedImageUrl = product.image;
+        document.getElementById('previewImg').src = product.image;
+        document.getElementById('imageName').textContent = 'Imagem atual';
+        document.getElementById('imagePreview').classList.remove('hidden');
+      }
+
+      document.getElementById('productModal').classList.remove('hidden');
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById('productModal').classList.add('hidden');
+    }
+
+    // Save product
+    document.getElementById('productForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Validações
+      const name = document.getElementById('productName').value.trim();
+      if (!name) {
+        alert('Nome do produto é obrigatório');
+        return;
+      }
+
+      const priceValue = parseFloat(document.getElementById('productPrice').value);
+      if (isNaN(priceValue) || priceValue <= 0) {
+        alert('Preço inválido');
+        return;
+      }
+
+      const weight = document.getElementById('productWeight').value.trim();
+      if (!weight) {
+        alert('Peso é obrigatório');
+        return;
+      }
+
+      const imageUrl = uploadedImageUrl || document.getElementById('productImage').value;
+      if (!imageUrl) {
+        alert('Por favor, adicione uma imagem (faça upload ou cole uma URL)');
+        return;
+      }
+
+      const tags = Array.from(document.querySelectorAll('.product-tag:checked')).map(cb => cb.value);
+      const ingredients = document.getElementById('productIngredients').value
+        .split('\n')
+        .map(i => i.trim())
+        .filter(i => i);
+
+      const existingId = document.getElementById('productId').value;
+      const productId = existingId || `${currentCategory}-${Date.now()}`;
+
+      console.log('Salvando produto:', { existingId, productId, categoryId: currentCategory });
+
+      const product = {
+        id: productId,
+        categoryId: currentCategory,
+        name: document.getElementById('productName').value,
+        description: document.getElementById('productDescription').value,
+        priceValue: priceValue,
+        price: `R$ ${priceValue.toFixed(2).replace('.', ',')}`,
+        weight: document.getElementById('productWeight').value,
+        image: imageUrl,
+        ingredients: ingredients,
+        tags: tags,
+        featured: document.getElementById('productFeatured').checked,
+        deliveryOptions: ['Entrega expressa 2 dias', 'Entrega padrão 5 dias', 'Retirada na loja']
+      };
+
+      try {
+        const response = await fetch(`${API_URL}/products`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(product)
+        });
+
+        if (response.ok) {
+          alert('Produto salvo com sucesso!');
+          closeModal();
+          loadProducts();
+        } else {
+          alert('Erro ao salvar produto');
+        }
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao salvar produto');
+      }
+    });
+
+    // Delete product
+    async function deleteProduct(id) {
+      if (!confirm('Tem certeza que deseja excluir este produto?')) return;
+
+      try {
+        const response = await fetch(`${API_URL}/products/${id}`, {
+          method: 'DELETE'
+        });
+
+        if (response.ok) {
+          alert('Produto excluído com sucesso!');
+          loadProducts();
+        } else {
+          alert('Erro ao excluir produto');
+        }
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao excluir produto');
+      }
+    }
+  </script>
+</body>
+</html>
