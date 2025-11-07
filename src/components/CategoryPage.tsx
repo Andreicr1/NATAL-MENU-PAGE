@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { ShoppingCart, ChevronLeft, Home } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { ImageCarousel } from "./ImageCarousel";
 
 interface Product {
@@ -46,6 +47,7 @@ export function CategoryPage({
   onCategoryChange
 }: CategoryPageProps) {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const [selectedProductDescription, setSelectedProductDescription] = useState<{ name: string; description: string } | null>(null);
 
   return (
     <div className="bg-[#fbf7e8] min-h-screen w-full">
@@ -198,6 +200,14 @@ export function CategoryPage({
                   {product.name}
                 </p>
 
+                {/* Description Button */}
+                <button
+                  onClick={() => setSelectedProductDescription({ name: product.name, description: product.description })}
+                  className="font-['Libre_Baskerville',_sans-serif] text-[#5c0108] text-[13px] border border-[#5c0108] rounded-[6px] px-[8px] py-[4px] mb-[6px] hover:bg-[#5c0108] hover:text-[#fbf7e8] transition-all"
+                >
+                  descrição
+                </button>
+
                 {/* Price */}
                 <p className="font-['Libre_Baskerville',_sans-serif] text-[#d4af37] text-[15px] leading-[20px] mb-[10px]">
                   {product.price}
@@ -222,6 +232,20 @@ export function CategoryPage({
           </div>
         )}
       </main>
+
+      {/* Description Dialog */}
+      <Dialog open={selectedProductDescription !== null} onOpenChange={() => setSelectedProductDescription(null)}>
+        <DialogContent className="bg-[#fbf7e8] border-2 border-[#d4af37] max-w-[440px]">
+          <DialogHeader>
+            <DialogTitle className="font-['Libre_Baskerville',_sans-serif] text-[#5c0108] text-[18px]">
+              {selectedProductDescription?.name}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="font-['Libre_Baskerville',_sans-serif] text-[#5c0108] text-[14px] leading-[22px] whitespace-pre-line">
+            {selectedProductDescription?.description}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

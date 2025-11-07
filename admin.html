@@ -3,36 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sweet Bar - Painel Admin</title>
+  <title>Sweet Bar - Painel Administrativo</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
-    body { font-family: 'Libre Baskerville', serif; }
+    * { font-family: 'Inter', sans-serif; }
+    body { background: #f8f9fa; }
+    .stat-card { transition: all 0.2s ease; }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .nav-btn.active { background: #1e293b; border-left: 4px solid #8b5cf6; }
+    .nav-btn { border-left: 4px solid transparent; transition: all 0.2s; }
+    .nav-btn:hover { background: #1e293b; }
+    .table-header { background: #f1f5f9; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+    .status-badge { padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+    .btn-primary { background: #8b5cf6; color: white; }
+    .btn-primary:hover { background: #7c3aed; }
+    .btn-secondary { background: white; border: 1px solid #e2e8f0; }
+    .btn-secondary:hover { background: #f8fafc; }
   </style>
 </head>
-<body class="bg-[#fbf7e8] min-h-screen">
+<body>
   <!-- Login Screen -->
-  <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border-2 border-[#d4af37]">
+  <div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+    <div class="bg-white rounded-xl shadow-xl p-10 w-full max-w-md border border-slate-200">
       <div class="text-center mb-8">
-        <h1 class="text-3xl text-[#5c0108] mb-2">🍫 Sweet Bar</h1>
-        <p class="text-[#d4af37]">Painel Administrativo</p>
+        <div class="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl mx-auto mb-4 flex items-center justify-center">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+        </div>
+        <h1 class="text-2xl font-bold text-slate-900 mb-1">Sweet Bar</h1>
+        <p class="text-slate-500 text-sm">Painel Administrativo</p>
       </div>
+
       <form id="loginForm" class="space-y-4">
         <div>
-          <label class="block text-[#5c0108] mb-2">Senha de Acesso</label>
+          <label class="block text-slate-700 text-sm font-medium mb-2">Senha de Acesso</label>
           <input
             type="password"
             id="password"
-            class="w-full px-4 py-3 border-2 border-[#d4af37] rounded-lg focus:outline-none focus:border-[#5c0108]"
-            placeholder="Digite a senha"
+            class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            placeholder="Digite sua senha"
           />
         </div>
         <button
           type="submit"
-          class="w-full bg-[#5c0108] text-[#fbf7e8] py-3 rounded-lg hover:bg-[#7c1c3d] transition-colors"
+          class="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white py-3 rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-medium"
         >
-          Entrar
+          Acessar Painel
         </button>
       </form>
       <p id="loginError" class="text-red-600 text-sm mt-4 text-center hidden"></p>
@@ -40,155 +58,355 @@
   </div>
 
   <!-- Admin Panel -->
-  <div id="adminPanel" class="hidden">
-    <!-- Header -->
-    <header class="bg-[#5c0108] text-[#fbf7e8] p-4 shadow-lg">
-      <div class="container mx-auto flex justify-between items-center">
-        <h1 class="text-2xl">🍫 Sweet Bar Admin</h1>
-        <button onclick="logout()" class="bg-[#d4af37] text-[#5c0108] px-4 py-2 rounded-lg hover:bg-[#e8d4a2]">
+  <div id="adminPanel" class="hidden flex h-screen bg-slate-50">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 text-white flex flex-col">
+      <div class="p-6 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-purple-600 to-purple-700 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-lg font-bold">Sweet Bar</h1>
+            <p class="text-xs text-slate-400">Administração</p>
+          </div>
+        </div>
+      </div>
+
+      <nav class="flex-1 p-4 space-y-1">
+        <button onclick="showSection('dashboard')" id="nav-dashboard" class="nav-btn active w-full text-left px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-3">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+          Dashboard
+        </button>
+
+        <button onclick="showSection('products')" id="nav-products" class="nav-btn w-full text-left px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-3">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+          Produtos
+        </button>
+
+        <button onclick="showSection('orders')" id="nav-orders" class="nav-btn w-full text-left px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-3">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+          </svg>
+          Pedidos
+        </button>
+
+        <button onclick="showSection('finance')" id="nav-finance" class="nav-btn w-full text-left px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-3">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          Financeiro
+        </button>
+      </nav>
+
+      <div class="p-4 border-t border-slate-800">
+        <button onclick="logout()" class="w-full px-4 py-3 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
           Sair
         </button>
       </div>
-    </header>
+    </aside>
 
     <!-- Main Content -->
-    <main class="container mx-auto p-4 max-w-6xl">
-      <!-- Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white rounded-lg p-6 border-2 border-[#d4af37]">
-          <div class="text-[#5c0108] text-sm mb-2">Total de Produtos</div>
-          <div class="text-3xl text-[#d4af37]" id="totalProducts">0</div>
+    <main class="flex-1 overflow-y-auto">
+      <!-- Header -->
+      <header class="bg-white border-b border-slate-200 px-8 py-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-bold text-slate-900" id="pageTitle">Dashboard</h2>
+            <p class="text-slate-500 text-sm mt-1" id="pageSubtitle">Visão geral do sistema</p>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="text-right">
+              <p class="text-sm font-medium text-slate-900" id="currentDate"></p>
+              <p class="text-xs text-slate-500">Última atualização: <span id="lastUpdate">Agora</span></p>
+            </div>
+          </div>
         </div>
-        <div class="bg-white rounded-lg p-6 border-2 border-[#d4af37]">
-          <div class="text-[#5c0108] text-sm mb-2">Categorias</div>
-          <div class="text-3xl text-[#d4af37]" id="totalCategories">7</div>
+      </header>
+
+      <div class="p-8">
+        <!-- Dashboard Section -->
+        <div id="section-dashboard" class="admin-section">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="stat-card bg-white rounded-xl p-6 border border-slate-200">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-slate-500 text-sm font-medium">Total de Produtos</p>
+                  <p class="text-3xl font-bold text-slate-900 mt-2" id="totalProducts">0</p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="stat-card bg-white rounded-xl p-6 border border-slate-200">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-slate-500 text-sm font-medium">Categorias Ativas</p>
+                  <p class="text-3xl font-bold text-slate-900 mt-2" id="totalCategories">7</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="stat-card bg-white rounded-xl p-6 border border-slate-200">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-slate-500 text-sm font-medium">Status do Sistema</p>
+                  <p class="text-xl font-semibold text-green-600 mt-2 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                    Operacional
+                  </p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 p-6">
+            <h3 class="text-lg font-semibold text-slate-900 mb-4">Início Rápido</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <button onclick="showSection('products')" class="text-left p-4 border border-slate-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-all">
+                <p class="font-semibold text-slate-900">Gerenciar Produtos</p>
+                <p class="text-sm text-slate-500 mt-1">Adicionar, editar ou remover produtos do catálogo</p>
+              </button>
+              <button onclick="showSection('orders')" class="text-left p-4 border border-slate-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-all">
+                <p class="font-semibold text-slate-900">Ver Pedidos</p>
+                <p class="text-sm text-slate-500 mt-1">Acompanhar e gerenciar pedidos recebidos</p>
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="bg-white rounded-lg p-6 border-2 border-[#d4af37]">
-          <div class="text-[#5c0108] text-sm mb-2">Status</div>
-          <div class="text-lg text-green-600">✓ Online</div>
+
+        <!-- Products Section -->
+        <div id="section-products" class="admin-section hidden">
+          <div class="bg-white rounded-xl border border-slate-200 p-6 mb-6">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h3 class="text-lg font-semibold text-slate-900">Catálogo de Produtos</h3>
+                <p class="text-sm text-slate-500 mt-1">Gerencie produtos por categoria</p>
+              </div>
+              <button onclick="showAddProduct()" class="px-4 py-2 btn-primary rounded-lg font-medium text-sm flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Novo Produto
+              </button>
+            </div>
+
+            <select id="categorySelect" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 mb-6">
+              <option value="advent">Calendário do Advento</option>
+              <option value="panettone">Panetone</option>
+              <option value="bars">Barras de Chocolate</option>
+              <option value="special">Doces Especiais</option>
+              <option value="truffles">Trufas</option>
+              <option value="giftboxes">Caixas de Presente</option>
+              <option value="cards">Cartões de Natal</option>
+            </select>
+          </div>
+
+          <div id="productsList" class="space-y-4">
+            <div class="text-center text-slate-500 py-12 bg-white rounded-xl border border-slate-200">Carregando produtos...</div>
+          </div>
         </div>
-      </div>
 
-      <!-- Category Selector -->
-      <div class="bg-white rounded-lg p-6 mb-6 border-2 border-[#d4af37]">
-        <label class="block text-[#5c0108] mb-3 text-lg">Selecione a Categoria</label>
-        <select id="categorySelect" class="w-full px-4 py-3 border-2 border-[#d4af37] rounded-lg focus:outline-none focus:border-[#5c0108]">
-          <option value="advent">🎁 Calendário do Advento</option>
-          <option value="panettone">🎄 Panetone</option>
-          <option value="bars">🍫 Barras de Chocolate</option>
-          <option value="special">⭐ Doces Especiais</option>
-          <option value="truffles">🌰 Trufas</option>
-          <option value="giftboxes">🎀 Caixas de Presente</option>
-          <option value="cards">✉️ Cartões de Natal</option>
-        </select>
-      </div>
+        <!-- Orders Section -->
+        <div id="section-orders" class="admin-section hidden">
+          <div class="bg-white rounded-xl border border-slate-200 p-6 mb-6">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h3 class="text-lg font-semibold text-slate-900">Gerenciamento de Pedidos</h3>
+                <p class="text-sm text-slate-500 mt-1">Visualize e acompanhe todos os pedidos</p>
+              </div>
+              <button onclick="loadOrders()" class="px-4 py-2 btn-secondary rounded-lg font-medium text-sm text-slate-700 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                Atualizar
+              </button>
+            </div>
 
-      <!-- Add Product Button -->
-      <div class="mb-6">
-        <button onclick="showAddProduct()" class="bg-[#5c0108] text-[#fbf7e8] px-6 py-3 rounded-lg hover:bg-[#7c1c3d] transition-colors">
-          + Adicionar Novo Produto
-        </button>
-      </div>
+            <div class="flex gap-2 flex-wrap">
+              <button onclick="filterOrders('all')" id="filter-all" class="px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 text-white">
+                Todos
+              </button>
+              <button onclick="filterOrders('pending')" id="filter-pending" class="px-4 py-2 rounded-lg text-sm font-medium btn-secondary text-slate-700">
+                Pendentes
+              </button>
+              <button onclick="filterOrders('approved')" id="filter-approved" class="px-4 py-2 rounded-lg text-sm font-medium btn-secondary text-slate-700">
+                Aprovados
+              </button>
+              <button onclick="filterOrders('cancelled')" id="filter-cancelled" class="px-4 py-2 rounded-lg text-sm font-medium btn-secondary text-slate-700">
+                Cancelados
+              </button>
+            </div>
+          </div>
 
-      <!-- Products List -->
-      <div id="productsList" class="space-y-4">
-        <div class="text-center text-[#5c0108] py-8">Carregando produtos...</div>
+          <div id="ordersList" class="space-y-3">
+            <div class="text-center text-slate-500 py-12 bg-white rounded-xl border border-slate-200">Carregando pedidos...</div>
+          </div>
+        </div>
+
+        <!-- Finance Section -->
+        <div id="section-finance" class="admin-section hidden">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="stat-card bg-white rounded-xl p-6 border border-slate-200">
+              <p class="text-slate-500 text-sm font-medium mb-2">Vendas Hoje</p>
+              <p class="text-3xl font-bold text-slate-900" id="ordersToday">0</p>
+              <p class="text-xs mt-2" id="ordersTodayChange">
+                <span class="text-slate-500">vs ontem</span>
+              </p>
+            </div>
+
+            <div class="stat-card bg-white rounded-xl p-6 border border-slate-200">
+              <p class="text-slate-500 text-sm font-medium mb-2">Faturamento Hoje</p>
+              <p class="text-2xl font-bold text-slate-900" id="revenueToday">R$ 0,00</p>
+              <p class="text-xs mt-2" id="revenueTodayChange">
+                <span class="text-slate-500">vs ontem</span>
+              </p>
+            </div>
+
+            <div class="stat-card bg-white rounded-xl p-6 border border-slate-200">
+              <p class="text-slate-500 text-sm font-medium mb-2">Receita 30 Dias</p>
+              <p class="text-2xl font-bold text-slate-900" id="revenue30Days">R$ 0,00</p>
+            </div>
+
+            <div class="stat-card bg-white rounded-xl p-6 border border-slate-200">
+              <p class="text-slate-500 text-sm font-medium mb-2">Ticket Médio</p>
+              <p class="text-2xl font-bold text-slate-900" id="avgTicket">R$ 0,00</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 p-6">
+            <h3 class="text-lg font-semibold text-slate-900 mb-6">Produtos Mais Vendidos (30 dias)</h3>
+            <div id="topProductsList">
+              <div class="text-center text-slate-500 py-8">Carregando...</div>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
 
   <!-- Product Modal -->
-  <div id="productModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl text-[#5c0108]" id="modalTitle">Adicionar Produto</h2>
-        <button onclick="closeModal()" class="text-[#5c0108] text-2xl">&times;</button>
+  <div id="productModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+    <div class="bg-white rounded-xl p-8 w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-200">
+        <h2 class="text-2xl font-bold text-slate-900" id="modalTitle">Adicionar Produto</h2>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
       </div>
 
-      <form id="productForm" class="space-y-4">
+      <form id="productForm" class="space-y-6">
         <input type="hidden" id="productId">
 
-        <div>
-          <label class="block text-[#5c0108] mb-2">Nome do Produto *</label>
-          <input type="text" id="productName" required class="w-full px-4 py-2 border-2 border-[#d4af37] rounded-lg focus:outline-none focus:border-[#5c0108]">
-        </div>
-
-        <div>
-          <label class="block text-[#5c0108] mb-2">Descrição *</label>
-          <textarea id="productDescription" required rows="3" class="w-full px-4 py-2 border-2 border-[#d4af37] rounded-lg focus:outline-none focus:border-[#5c0108]"></textarea>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-[#5c0108] mb-2">Preço (R$) *</label>
-            <input type="number" id="productPrice" required step="0.01" class="w-full px-4 py-2 border-2 border-[#d4af37] rounded-lg focus:outline-none focus:border-[#5c0108]">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="md:col-span-2">
+            <label class="block text-slate-700 text-sm font-medium mb-2">Nome do Produto *</label>
+            <input type="text" id="productName" required class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
           </div>
-          <div>
-            <label class="block text-[#5c0108] mb-2">Peso *</label>
-            <input type="text" id="productWeight" required placeholder="Ex: 100g" class="w-full px-4 py-2 border-2 border-[#d4af37] rounded-lg focus:outline-none focus:border-[#5c0108]">
-          </div>
-        </div>
 
-        <div>
-          <label class="block text-[#5c0108] mb-2">Imagem do Produto *</label>
-          <div class="space-y-2">
-            <div class="flex gap-2">
-              <button type="button" onclick="document.getElementById('imageFile').click()" class="flex-1 bg-[#d4af37] text-[#5c0108] px-4 py-2 rounded-lg hover:bg-[#e8d4a2] border-2 border-[#d4af37]">
-                📁 Escolher Arquivo
-              </button>
-              <button type="button" onclick="toggleImageUrl()" class="flex-1 bg-white text-[#5c0108] px-4 py-2 rounded-lg hover:bg-gray-50 border-2 border-[#d4af37]">
-                🔗 Usar URL
-              </button>
-            </div>
-            <input type="file" id="imageFile" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
-            <input type="url" id="productImage" class="w-full px-4 py-2 border-2 border-[#d4af37] rounded-lg focus:outline-none focus:border-[#5c0108] hidden">
-            <div id="imagePreview" class="hidden">
-              <div class="relative">
-                <img id="previewImg" class="w-full h-48 object-cover rounded-lg border-2 border-[#d4af37]">
-                <button type="button" onclick="clearImage()" class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 hover:bg-red-700">
-                  ✕
+          <div class="md:col-span-2">
+            <label class="block text-slate-700 text-sm font-medium mb-2">Descrição *</label>
+            <textarea id="productDescription" required rows="3" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-slate-700 text-sm font-medium mb-2">Preço (R$) *</label>
+            <input type="number" id="productPrice" required step="0.01" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+          </div>
+
+          <div>
+            <label class="block text-slate-700 text-sm font-medium mb-2">Peso *</label>
+            <input type="text" id="productWeight" required placeholder="Ex: 100g" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-slate-700 text-sm font-medium mb-2">Imagem do Produto *</label>
+            <div class="space-y-3">
+              <div class="flex gap-2">
+                <button type="button" onclick="document.getElementById('imageFile').click()" class="flex-1 px-4 py-3 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 border border-slate-300 font-medium">
+                  Escolher Arquivo
+                </button>
+                <button type="button" onclick="toggleImageUrl()" class="flex-1 px-4 py-3 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 border border-slate-300 font-medium">
+                  Usar URL
                 </button>
               </div>
-              <p id="imageName" class="text-sm text-[#5c0108] mt-2"></p>
+              <input type="file" id="imageFile" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+              <input type="url" id="productImage" placeholder="https://..." class="hidden w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+              <div id="imagePreview" class="hidden">
+                <div class="relative">
+                  <img id="previewImg" class="w-full h-48 object-cover rounded-lg border border-slate-300">
+                  <button type="button" onclick="clearImage()" class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 hover:bg-red-700 shadow-lg">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </button>
+                </div>
+                <p id="imageName" class="text-sm text-slate-600 mt-2"></p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div>
-          <label class="block text-[#5c0108] mb-2">Ingredientes (um por linha)</label>
-          <textarea id="productIngredients" rows="3" placeholder="Chocolate belga&#10;Açúcar&#10;Leite" class="w-full px-4 py-2 border-2 border-[#d4af37] rounded-lg focus:outline-none focus:border-[#5c0108]"></textarea>
-        </div>
+          <div class="md:col-span-2">
+            <label class="block text-slate-700 text-sm font-medium mb-2">Ingredientes (um por linha)</label>
+            <textarea id="productIngredients" rows="3" placeholder="Chocolate belga&#10;Açúcar&#10;Leite" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+          </div>
 
-        <div>
-          <label class="block text-[#5c0108] mb-2">Tags</label>
-          <div class="flex gap-4">
-            <label class="flex items-center">
-              <input type="checkbox" value="vegano" class="product-tag mr-2">
-              <span>Vegano</span>
-            </label>
-            <label class="flex items-center">
-              <input type="checkbox" value="sem-lactose" class="product-tag mr-2">
-              <span>Sem Lactose</span>
-            </label>
-            <label class="flex items-center">
-              <input type="checkbox" value="sem-gluten" class="product-tag mr-2">
-              <span>Sem Glúten</span>
+          <div class="md:col-span-2">
+            <label class="block text-slate-700 text-sm font-medium mb-3">Tags</label>
+            <div class="flex flex-wrap gap-3">
+              <label class="flex items-center px-4 py-2 border border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50">
+                <input type="checkbox" value="vegano" class="product-tag mr-2">
+                <span class="text-sm">Vegano</span>
+              </label>
+              <label class="flex items-center px-4 py-2 border border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50">
+                <input type="checkbox" value="sem-lactose" class="product-tag mr-2">
+                <span class="text-sm">Sem Lactose</span>
+              </label>
+              <label class="flex items-center px-4 py-2 border border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50">
+                <input type="checkbox" value="sem-gluten" class="product-tag mr-2">
+                <span class="text-sm">Sem Glúten</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="flex items-center px-4 py-3 border border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50">
+              <input type="checkbox" id="productFeatured" class="mr-3">
+              <span class="text-sm font-medium text-slate-700">Produto em Destaque</span>
             </label>
           </div>
         </div>
 
-        <div>
-          <label class="flex items-center">
-            <input type="checkbox" id="productFeatured" class="mr-2">
-            <span class="text-[#5c0108]">⭐ Produto em Destaque</span>
-          </label>
-        </div>
-
-        <div class="flex gap-4 pt-4">
-          <button type="submit" class="flex-1 bg-[#5c0108] text-[#fbf7e8] py-3 rounded-lg hover:bg-[#7c1c3d]">
+        <div class="flex gap-4 pt-6 border-t border-slate-200">
+          <button type="submit" class="flex-1 btn-primary py-3 rounded-lg font-medium">
             Salvar Produto
           </button>
-          <button type="button" onclick="closeModal()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400">
+          <button type="button" onclick="closeModal()" class="flex-1 btn-secondary py-3 rounded-lg font-medium text-slate-700">
             Cancelar
           </button>
         </div>
@@ -197,13 +415,48 @@
   </div>
 
   <script>
-    // Usar a variável de ambiente ou fallback para a URL de produção
     const API_URL = 'https://963pa03698.execute-api.us-east-1.amazonaws.com';
-    const PASSWORD = 'sweetbar2025'; // TODO: Mover para autenticação JWT
+    const PASSWORD = 'sweetbar2025';
     const S3_BUCKET = 'natal-menu-products-images';
     let currentCategory = 'advent';
     let products = [];
     let uploadedImageUrl = '';
+    let allOrders = [];
+    let filteredOrders = [];
+
+    // Update current date
+    setInterval(() => {
+      const now = new Date();
+      document.getElementById('currentDate').textContent = now.toLocaleDateString('pt-BR', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+      document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('pt-BR');
+    }, 1000);
+
+    // Show/Hide sections
+    function showSection(section) {
+      document.querySelectorAll('.admin-section').forEach(s => s.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+      document.getElementById(`section-${section}`).classList.remove('hidden');
+      document.getElementById(`nav-${section}`).classList.add('active');
+
+      // Update page title
+      const titles = {
+        dashboard: { title: 'Dashboard', subtitle: 'Visão geral do sistema' },
+        products: { title: 'Produtos', subtitle: 'Gerenciar catálogo de produtos' },
+        orders: { title: 'Pedidos', subtitle: 'Gerenciar pedidos recebidos' },
+        finance: { title: 'Financeiro', subtitle: 'Análise de vendas e performance' }
+      };
+      document.getElementById('pageTitle').textContent = titles[section].title;
+      document.getElementById('pageSubtitle').textContent = titles[section].subtitle;
+
+      // Load section data
+      if (section === 'products') loadProducts();
+      else if (section === 'orders') loadOrders();
+      else if (section === 'finance') loadFinance();
+      else if (section === 'dashboard') loadProducts();
+    }
 
     // Login
     document.getElementById('loginForm').addEventListener('submit', (e) => {
@@ -212,7 +465,7 @@
       if (password === PASSWORD) {
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('adminPanel').classList.remove('hidden');
-        loadProducts();
+        showSection('dashboard');
       } else {
         const error = document.getElementById('loginError');
         error.textContent = 'Senha incorreta!';
@@ -242,7 +495,7 @@
       } catch (error) {
         console.error('Erro ao carregar produtos:', error);
         document.getElementById('productsList').innerHTML =
-          '<div class="text-center text-red-600 py-8">Erro ao carregar produtos</div>';
+          '<div class="text-center text-red-600 py-8 bg-white rounded-xl border border-red-200">Erro ao carregar produtos</div>';
       }
     }
 
@@ -250,40 +503,41 @@
     function renderProducts() {
       const container = document.getElementById('productsList');
       if (products.length === 0) {
-        container.innerHTML = '<div class="text-center text-[#5c0108] py-8">Nenhum produto nesta categoria</div>';
+        container.innerHTML = '<div class="text-center text-slate-500 py-12 bg-white rounded-xl border border-slate-200">Nenhum produto nesta categoria</div>';
         return;
       }
 
       container.innerHTML = products.map(product => `
-        <div class="bg-white rounded-lg p-4 border-2 border-[#d4af37] flex gap-4">
-          <img src="${product.image}" alt="${product.name}" class="w-24 h-24 object-cover rounded-lg">
-          <div class="flex-1">
-            <div class="flex justify-between items-start mb-2">
-              <div>
-                <h3 class="text-lg text-[#5c0108] font-bold">${product.name}</h3>
-                <p class="text-[#d4af37] text-xl">R$ ${product.priceValue.toFixed(2)}</p>
+        <div class="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-md transition-shadow">
+          <div class="flex gap-6">
+            <img src="${product.image}" alt="${product.name}" class="w-24 h-24 object-cover rounded-lg border border-slate-200">
+            <div class="flex-1">
+              <div class="flex justify-between items-start mb-3">
+                <div>
+                  <h3 class="text-lg font-semibold text-slate-900">${product.name}</h3>
+                  <p class="text-2xl font-bold text-purple-600 mt-1">R$ ${product.priceValue.toFixed(2)}</p>
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="editProduct('${product.id}')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 text-sm font-medium">
+                    Editar
+                  </button>
+                  <button onclick="deleteProduct('${product.id}')" class="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 text-sm font-medium">
+                    Excluir
+                  </button>
+                </div>
               </div>
-              <div class="flex gap-2">
-                <button onclick="editProduct('${product.id}')" class="bg-[#d4af37] text-[#5c0108] px-4 py-2 rounded-lg hover:bg-[#e8d4a2]">
-                  Editar
-                </button>
-                <button onclick="deleteProduct('${product.id}')" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
-                  Excluir
-                </button>
+              <p class="text-sm text-slate-600 mb-3">${product.description}</p>
+              <div class="flex gap-2 flex-wrap">
+                <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-medium">${product.weight}</span>
+                ${product.featured ? '<span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">Destaque</span>' : ''}
+                ${product.tags.map(tag => `<span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">${tag}</span>`).join('')}
               </div>
-            </div>
-            <p class="text-sm text-gray-600 mb-2">${product.description}</p>
-            <div class="flex gap-2 text-xs">
-              <span class="bg-[#fbf7e8] px-2 py-1 rounded">${product.weight}</span>
-              ${product.featured ? '<span class="bg-[#d4af37] text-[#5c0108] px-2 py-1 rounded">⭐ Destaque</span>' : ''}
-              ${product.tags.map(tag => `<span class="bg-green-100 text-green-800 px-2 py-1 rounded">${tag}</span>`).join('')}
             </div>
           </div>
         </div>
       `).join('');
     }
 
-    // Toggle image URL input
     function toggleImageUrl() {
       const urlInput = document.getElementById('productImage');
       const fileInput = document.getElementById('imageFile');
@@ -300,7 +554,6 @@
       }
     }
 
-    // Compress image
     async function compressImage(file) {
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -310,8 +563,6 @@
             const canvas = document.createElement('canvas');
             let width = img.width;
             let height = img.height;
-
-            // Max dimensions
             const maxWidth = 1200;
             const maxHeight = 1200;
 
@@ -342,21 +593,17 @@
       });
     }
 
-    // Handle image upload
     async function handleImageUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
 
-      // Validate file type
       if (!file.type.startsWith('image/')) {
         alert('Por favor, selecione um arquivo de imagem');
         return;
       }
 
-      // Compress image
       const compressedFile = await compressImage(file);
 
-      // Show preview
       const reader = new FileReader();
       reader.onload = (e) => {
         document.getElementById('previewImg').src = e.target.result;
@@ -365,50 +612,26 @@
       };
       reader.readAsDataURL(compressedFile);
 
-      // Upload to S3
       try {
-        // Get presigned URL
-        console.log('Solicitando URL pré-assinada para:', compressedFile.name);
         const presignedResponse = await fetch(`${API_URL}/upload/presigned-url`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            fileName: compressedFile.name,
-            fileType: 'image/jpeg'
-          })
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ fileName: compressedFile.name, fileType: 'image/jpeg' })
         });
 
-        if (!presignedResponse.ok) {
-          const errorText = await presignedResponse.text();
-          console.error('Erro ao obter URL de upload:', errorText);
-          throw new Error('Falha ao obter URL de upload: ' + errorText);
-        }
+        if (!presignedResponse.ok) throw new Error('Falha ao obter URL de upload');
 
         const { uploadUrl, fileUrl } = await presignedResponse.json();
-        console.log('URL de upload recebida:', uploadUrl);
 
-        // Upload file to S3
-        console.log('Enviando arquivo para S3...');
         const uploadResponse = await fetch(uploadUrl, {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'image/jpeg',
-            'x-amz-acl': 'public-read'
-          },
+          headers: { 'Content-Type': 'image/jpeg', 'x-amz-acl': 'public-read' },
           body: compressedFile
         });
 
-        if (!uploadResponse.ok) {
-          const errorText = await uploadResponse.text();
-          console.error('Erro no upload S3:', errorText);
-          throw new Error('Falha no upload: ' + errorText);
-        }
+        if (!uploadResponse.ok) throw new Error('Falha no upload');
 
         uploadedImageUrl = fileUrl;
-        console.log('Upload concluído! URL da imagem:', fileUrl);
         alert('Imagem enviada com sucesso!');
 
       } catch (error) {
@@ -417,7 +640,6 @@
       }
     }
 
-    // Clear image
     function clearImage() {
       uploadedImageUrl = '';
       document.getElementById('imageFile').value = '';
@@ -427,7 +649,6 @@
       document.getElementById('imageName').textContent = '';
     }
 
-    // Show add product modal
     function showAddProduct() {
       document.getElementById('modalTitle').textContent = 'Adicionar Produto';
       document.getElementById('productForm').reset();
@@ -437,7 +658,6 @@
       document.getElementById('productModal').classList.remove('hidden');
     }
 
-    // Edit product
     function editProduct(id) {
       const product = products.find(p => p.id === id);
       if (!product) return;
@@ -455,7 +675,6 @@
         checkbox.checked = product.tags.includes(checkbox.value);
       });
 
-      // Show existing image
       clearImage();
       if (product.image) {
         uploadedImageUrl = product.image;
@@ -467,16 +686,13 @@
       document.getElementById('productModal').classList.remove('hidden');
     }
 
-    // Close modal
     function closeModal() {
       document.getElementById('productModal').classList.add('hidden');
     }
 
-    // Save product
     document.getElementById('productForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      // Validações
       const name = document.getElementById('productName').value.trim();
       if (!name) {
         alert('Nome do produto é obrigatório');
@@ -497,7 +713,7 @@
 
       const imageUrl = uploadedImageUrl || document.getElementById('productImage').value;
       if (!imageUrl) {
-        alert('Por favor, adicione uma imagem (faça upload ou cole uma URL)');
+        alert('Por favor, adicione uma imagem');
         return;
       }
 
@@ -509,8 +725,6 @@
 
       const existingId = document.getElementById('productId').value;
       const productId = existingId || `${currentCategory}-${Date.now()}`;
-
-      console.log('Salvando produto:', { existingId, productId, categoryId: currentCategory });
 
       const product = {
         id: productId,
@@ -547,7 +761,6 @@
       }
     });
 
-    // Delete product
     async function deleteProduct(id) {
       if (!confirm('Tem certeza que deseja excluir este produto?')) return;
 
@@ -565,6 +778,181 @@
       } catch (error) {
         console.error('Erro:', error);
         alert('Erro ao excluir produto');
+      }
+    }
+
+    // Orders Management
+    async function loadOrders() {
+      try {
+        const response = await fetch(`${API_URL}/orders`);
+        allOrders = await response.json();
+        filteredOrders = allOrders;
+        renderOrders();
+      } catch (error) {
+        console.error('Erro ao carregar pedidos:', error);
+        document.getElementById('ordersList').innerHTML =
+          '<div class="text-center text-red-600 py-12 bg-white rounded-xl border border-red-200">Erro ao carregar pedidos</div>';
+      }
+    }
+
+    function filterOrders(status) {
+      ['all', 'pending', 'approved', 'cancelled'].forEach(s => {
+        const btn = document.getElementById(`filter-${s}`);
+        if (s === status) {
+          btn.className = 'px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 text-white';
+        } else {
+          btn.className = 'px-4 py-2 rounded-lg text-sm font-medium btn-secondary text-slate-700';
+        }
+      });
+
+      if (status === 'all') {
+        filteredOrders = allOrders;
+      } else {
+        filteredOrders = allOrders.filter(o => o.paymentStatus === status);
+      }
+
+      renderOrders();
+    }
+
+    function renderOrders() {
+      const container = document.getElementById('ordersList');
+      if (filteredOrders.length === 0) {
+        container.innerHTML = '<div class="text-center text-slate-500 py-12 bg-white rounded-xl border border-slate-200">Nenhum pedido encontrado</div>';
+        return;
+      }
+
+      container.innerHTML = filteredOrders.map(order => {
+        const statusColors = {
+          approved: 'bg-green-100 text-green-700',
+          pending: 'bg-yellow-100 text-yellow-700',
+          cancelled: 'bg-red-100 text-red-700'
+        };
+        const statusLabels = {
+          approved: 'Aprovado',
+          pending: 'Pendente',
+          cancelled: 'Cancelado'
+        };
+
+        return `
+          <div class="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-md transition-shadow">
+            <div class="flex justify-between items-start mb-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                  <h3 class="text-base font-semibold text-slate-900">Pedido #${order.orderId.substring(0, 8)}</h3>
+                  <span class="status-badge ${statusColors[order.paymentStatus] || statusColors.pending}">
+                    ${statusLabels[order.paymentStatus] || statusLabels.pending}
+                  </span>
+                </div>
+                <div class="space-y-1">
+                  <p class="text-sm text-slate-600"><strong>Cliente:</strong> ${order.customerName}</p>
+                  <p class="text-sm text-slate-600"><strong>Email:</strong> ${order.customerEmail}</p>
+                  <p class="text-sm text-slate-600"><strong>Data:</strong> ${new Date(order.createdAt).toLocaleString('pt-BR')}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-sm text-slate-500 mb-1">Total</p>
+                <p class="text-2xl font-bold text-slate-900">R$ ${order.total.toFixed(2)}</p>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-200 pt-4 mt-4">
+              <p class="text-sm font-medium text-slate-700 mb-2">Itens do Pedido:</p>
+              <div class="space-y-1">
+                ${order.items.map(item => `
+                  <p class="text-sm text-slate-600">• ${item.name} <span class="text-slate-400">(${item.quantity}x - R$ ${item.priceValue.toFixed(2)})</span></p>
+                `).join('')}
+              </div>
+            </div>
+
+            ${order.shippingAddress?.street ? `
+              <div class="border-t border-slate-200 pt-4 mt-4">
+                <p class="text-sm font-medium text-slate-700 mb-2">Endereço de Entrega:</p>
+                <p class="text-sm text-slate-600">
+                  ${order.shippingAddress.street}, ${order.shippingAddress.city} - ${order.shippingAddress.state}
+                  ${order.shippingAddress.zipCode ? ` - CEP: ${order.shippingAddress.zipCode}` : ''}
+                </p>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Finance Dashboard
+    async function loadFinance() {
+      try {
+        const response = await fetch(`${API_URL}/analytics/dashboard`);
+        const data = await response.json();
+
+        document.getElementById('ordersToday').textContent = data.today.orders;
+        const ordersChange = parseFloat(data.today.ordersChange);
+        document.getElementById('ordersTodayChange').innerHTML = `
+          <span class="${ordersChange >= 0 ? 'text-green-600' : 'text-red-600'} font-medium">
+            ${ordersChange >= 0 ? '+' : ''}${ordersChange}%
+          </span>
+          <span class="text-slate-500"> vs ontem</span>
+        `;
+
+        document.getElementById('revenueToday').textContent = `R$ ${data.today.revenue.toFixed(2)}`;
+        const revenueChange = parseFloat(data.today.revenueChange);
+        document.getElementById('revenueTodayChange').innerHTML = `
+          <span class="${revenueChange >= 0 ? 'text-green-600' : 'text-red-600'} font-medium">
+            ${revenueChange >= 0 ? '+' : ''}${revenueChange}%
+          </span>
+          <span class="text-slate-500"> vs ontem</span>
+        `;
+
+        document.getElementById('revenue30Days').textContent = `R$ ${data.last30Days.totalRevenue.toFixed(2)}`;
+        document.getElementById('avgTicket').textContent = `R$ ${data.last30Days.avgTicket.toFixed(2)}`;
+
+        const topList = document.getElementById('topProductsList');
+        if (data.topProducts.length === 0) {
+          topList.innerHTML = '<div class="text-center text-slate-500 py-8">Nenhuma venda nos últimos 30 dias</div>';
+        } else {
+          topList.innerHTML = `
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead>
+                  <tr class="table-header">
+                    <th class="text-left py-3 px-4">Posição</th>
+                    <th class="text-left py-3 px-4">Produto</th>
+                    <th class="text-right py-3 px-4">Unidades</th>
+                    <th class="text-right py-3 px-4">Receita</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                  ${data.topProducts.map((product, index) => `
+                    <tr class="hover:bg-slate-50">
+                      <td class="py-4 px-4">
+                        <div class="flex items-center justify-center w-8 h-8 rounded-full ${
+                          index === 0 ? 'bg-yellow-100 text-yellow-700' :
+                          index === 1 ? 'bg-slate-200 text-slate-700' :
+                          index === 2 ? 'bg-orange-100 text-orange-700' :
+                          'bg-slate-100 text-slate-600'
+                        } font-bold text-sm">
+                          ${index + 1}
+                        </div>
+                      </td>
+                      <td class="py-4 px-4">
+                        <p class="font-medium text-slate-900">${product.name}</p>
+                      </td>
+                      <td class="py-4 px-4 text-right">
+                        <p class="text-slate-700 font-medium">${product.quantity}</p>
+                      </td>
+                      <td class="py-4 px-4 text-right">
+                        <p class="font-bold text-purple-600">R$ ${product.revenue.toFixed(2)}</p>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados financeiros:', error);
+        document.getElementById('topProductsList').innerHTML =
+          '<div class="text-center text-red-600 py-8">Erro ao carregar dados</div>';
       }
     }
   </script>
