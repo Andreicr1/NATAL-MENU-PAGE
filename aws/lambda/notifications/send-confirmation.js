@@ -269,11 +269,11 @@ async function sendEmailViaSendGrid(order) {
   };
 
   console.log('[SENDGRID] Sending email to:', order.customerEmail);
-  
+
   const response = await sgMail.send(msg);
   console.log('[SENDGRID] Email sent successfully! Status:', response[0].statusCode);
   console.log('[SENDGRID] Message ID:', response[0].headers['x-message-id']);
-  
+
   return response;
 }
 

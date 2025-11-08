@@ -19,38 +19,38 @@ Write-Host "`n[1/3] Buscando secret atual do Mercado Pago..." -ForegroundColor Y
 
 try {
     $currentSecret = aws secretsmanager get-secret-value --secret-id natal-menu/mercadopago --query SecretString --output text | ConvertFrom-Json
-    
+
     Write-Host "✅ Secret encontrado!" -ForegroundColor Green
-    
+
     # Adicionar SendGrid API Key ao secret existente
     $currentSecret | Add-Member -NotePropertyName "sendgrid_api_key" -NotePropertyValue $sendGridApiKey -Force
-    
+
     Write-Host "`n[2/3] Atualizando secret com SendGrid API Key..." -ForegroundColor Yellow
-    
+
     $newSecretJson = $currentSecret | ConvertTo-Json -Compress
-    
+
     aws secretsmanager update-secret `
         --secret-id natal-menu/mercadopago `
         --secret-string $newSecretJson
-    
+
     Write-Host "✅ Secret atualizado com sucesso!" -ForegroundColor Green
-    
+
 } catch {
     Write-Host "❌ Erro ao atualizar secret: $_" -ForegroundColor Red
     Write-Host "`nTentando criar secret separado..." -ForegroundColor Yellow
-    
+
     # Criar secret separado para SendGrid
     $sendGridSecret = @{
         api_key = $sendGridApiKey
         from_email = "noreply@sweetbarchocolates.com.br"
         from_name = "Sweet Bar Chocolates"
     } | ConvertTo-Json
-    
+
     aws secretsmanager create-secret `
         --name natal-menu/sendgrid `
         --description "SendGrid API Key para emails" `
         --secret-string $sendGridSecret
-    
+
     Write-Host "✅ Secret SendGrid criado!" -ForegroundColor Green
 }
 
@@ -74,4 +74,3 @@ Write-Host "3. Testar envio de email fazendo um novo pedido`n" -ForegroundColor 
 Write-Host "📧 Email configurado: noreply@sweetbarchocolates.com.br" -ForegroundColor Cyan
 Write-Host "📊 Plano: FREE (100 emails/dia)" -ForegroundColor Cyan
 Write-Host "🔗 Dashboard: https://app.sendgrid.com/`n" -ForegroundColor Cyan
-

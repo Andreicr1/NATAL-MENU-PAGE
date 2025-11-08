@@ -2,7 +2,7 @@
 
 ## 🎯 Por Que Migrar?
 
-**Problema:** AWS SES está em sandbox e precisa de aprovação (demora dias/semanas)  
+**Problema:** AWS SES está em sandbox e precisa de aprovação (demora dias/semanas)
 **Solução:** SendGrid funciona imediatamente, sem aprovação!
 
 ## ✅ O Que Foi Preparado
@@ -53,7 +53,7 @@
    From Name: Sweet Bar Chocolates
    From Email Address: noreply@sweetbarchocolates.com.br
    Reply To: contato@sweetbarchocolates.com.br
-   
+
    Company Address: Rua Exemplo, 123
    City: Florianópolis
    State: Santa Catarina
@@ -159,7 +159,6 @@ aws logs tail /aws/lambda/natal-menu-backend-v2-SendConfirmationFunction-XXX --f
 
 ---
 
-**Tempo total de configuração: ~15 minutos**  
-**Implementado por:** Engenharia Sweet Bar  
+**Tempo total de configuração: ~15 minutos**
+**Implementado por:** Engenharia Sweet Bar
 **Data:** 08/11/2024
-

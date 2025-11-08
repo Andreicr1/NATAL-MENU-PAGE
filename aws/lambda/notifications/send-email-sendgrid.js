@@ -46,7 +46,7 @@ async function sendEmailViaSendGrid(order, sendGridApiKey, fromEmail, fromName) 
   };
 
   console.log('[SENDGRID] Sending email to:', order.customerEmail);
-  
+
   try {
     const response = await sgMail.send(msg);
     console.log('[SENDGRID] Email sent successfully:', response[0].statusCode);
@@ -476,4 +476,3 @@ function formatPhone(phone) {
 module.exports = {
   sendEmailViaSendGrid
 };
-

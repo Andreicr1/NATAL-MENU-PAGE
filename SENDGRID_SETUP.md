@@ -119,4 +119,3 @@ Para começar, o plano FREE é suficiente!
 ---
 
 **Me avise quando tiver a API Key do SendGrid que eu implemento tudo!** 🚀
-
