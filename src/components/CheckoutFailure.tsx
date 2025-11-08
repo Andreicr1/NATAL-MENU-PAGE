@@ -10,6 +10,7 @@ export function CheckoutFailure() {
   const orderId = searchParams.get('orderId') || searchParams.get('external_reference');
   const paymentId = searchParams.get('payment_id');
   const status = searchParams.get('status');
+  const statusDetail = searchParams.get('status_detail');
 
   return (
     <div className="min-h-screen bg-[#fbf7e8] flex items-center justify-center p-4">
@@ -33,28 +34,48 @@ export function CheckoutFailure() {
               O que aconteceu?
             </h3>
 
-            <p className="text-sm text-red-700 mb-4">
-              Seu pagamento não foi aprovado. Isso pode acontecer por diversos motivos:
-            </p>
-
-            <ul className="space-y-2 text-sm text-red-700">
-              <li className="flex items-start gap-2">
-                <span className="text-red-500">•</span>
-                <span>Saldo insuficiente na conta</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-red-500">•</span>
-                <span>Limite do cartão excedido</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-red-500">•</span>
-                <span>Dados do cartão incorretos</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-red-500">•</span>
-                <span>Problema temporário com o banco</span>
-              </li>
-            </ul>
+            {statusDetail ? (
+              <div className="text-red-700 mb-4">
+                <p className="font-semibold mb-2">Motivo do erro:</p>
+                <p className="text-sm">
+                  {statusDetail === 'cc_rejected_other_reason' && '❌ Cartão recusado. Tente outro cartão ou forma de pagamento.'}
+                  {statusDetail === 'cc_rejected_insufficient_amount' && '💸 Saldo insuficiente no cartão.'}
+                  {statusDetail === 'cc_rejected_bad_filled_card_number' && '🔢 Número do cartão incorreto. Verifique e tente novamente.'}
+                  {statusDetail === 'cc_rejected_bad_filled_date' && '📅 Data de validade incorreta. Verifique e tente novamente.'}
+                  {statusDetail === 'cc_rejected_bad_filled_security_code' && '🔐 Código de segurança (CVV) incorreto. Verifique e tente novamente.'}
+                  {statusDetail === 'cc_rejected_call_for_authorize' && '📞 Cartão bloqueado. Entre em contato com seu banco para autorizar.'}
+                  {statusDetail === 'cc_rejected_max_attempts' && '🚫 Muitas tentativas. Aguarde alguns minutos e tente novamente.'}
+                  {!['cc_rejected_other_reason', 'cc_rejected_insufficient_amount', 'cc_rejected_bad_filled_card_number',
+                    'cc_rejected_bad_filled_date', 'cc_rejected_bad_filled_security_code', 'cc_rejected_call_for_authorize',
+                    'cc_rejected_max_attempts'].includes(statusDetail)
+                    && `⚠️ Erro: ${statusDetail}. Tente novamente ou use outra forma de pagamento.`}
+                </p>
+              </div>
+            ) : (
+              <>
+                <p className="text-sm text-red-700 mb-4">
+                  Seu pagamento não foi aprovado. Isso pode acontecer por diversos motivos:
+                </p>
+                <ul className="space-y-2 text-sm text-red-700">
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-500">•</span>
+                    <span>Saldo insuficiente na conta</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-500">•</span>
+                    <span>Limite do cartão excedido</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-500">•</span>
+                    <span>Dados do cartão incorretos</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-500">•</span>
+                    <span>Problema temporário com o banco</span>
+                  </li>
+                </ul>
+              </>
+            )}
 
             {(orderId || paymentId) && (
               <div className="mt-4 pt-4 border-t border-red-200">
@@ -116,7 +137,7 @@ export function CheckoutFailure() {
             </Button>
 
             <Button
-              onClick={() => window.open('https://wa.me/5511999999999', '_blank')}
+              onClick={() => window.open('https://wa.me/5548991960811', '_blank')}
               variant="outline"
               className="flex-1 border-[#d4af37] text-[#5c0108] hover:bg-[#fbf7e8]"
             >

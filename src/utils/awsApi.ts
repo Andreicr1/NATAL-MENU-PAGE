@@ -184,3 +184,39 @@ export async function getOrderStatus(orderId: string): Promise<{
   if (!response.ok) throw new Error('Failed to fetch order status');
   return response.json();
 }
+
+export async function searchOrders(searchTerm: string): Promise<{
+  count: number;
+  searchTerm: string;
+  orders: Array<{
+    orderId: string;
+    orderNumber?: string;
+    customerName: string;
+    customerEmail: string;
+    customerPhone?: string;
+    items: any[];
+    total: number;
+    status: string;
+    paymentStatus?: string;
+    paymentId?: string;
+    transactionId?: string;
+    externalReference?: string;
+    shippingAddress?: {
+      street: string;
+      number: string;
+      complement?: string;
+      neighborhood?: string;
+      city: string;
+      state: string;
+      zipCode: string;
+    };
+    shippingCost?: number;
+    paymentMethod?: string;
+    createdAt: number;
+    updatedAt: number;
+  }>;
+}> {
+  const response = await fetch(`${API_URL}/orders/search?q=${encodeURIComponent(searchTerm)}`);
+  if (!response.ok) throw new Error('Failed to search orders');
+  return response.json();
+}

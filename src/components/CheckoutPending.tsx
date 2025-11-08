@@ -48,6 +48,14 @@ export function CheckoutPending() {
               Seu pedido foi registrado com sucesso, mas o pagamento ainda está sendo processado.
             </p>
 
+            {paymentType === 'pix' && (
+              <div className="bg-green-50 border border-green-200 p-3 rounded mb-4">
+                <p className="text-green-800 text-sm font-medium">
+                  ✅ Se você já pagou o PIX, aguarde alguns minutos para a confirmação automática.
+                </p>
+              </div>
+            )}
+
             {(orderId || paymentId) && (
               <div className="space-y-2 text-sm bg-white p-3 rounded border border-yellow-200">
                 {orderId && (
@@ -154,7 +162,7 @@ export function CheckoutPending() {
             </Button>
 
             <Button
-              onClick={() => window.open('https://wa.me/5511999999999', '_blank')}
+              onClick={() => window.open('https://wa.me/5548991960811', '_blank')}
               variant="outline"
               className="flex-1 border-[#d4af37] text-[#5c0108] hover:bg-[#fbf7e8]"
             >

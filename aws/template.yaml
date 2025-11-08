@@ -230,6 +230,22 @@ Resources:
             Path: /orders/{orderId}/status
             Method: get
 
+  SearchOrdersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/orders/
+      Handler: search-by-transaction.handler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrdersTable
+      Events:
+        SearchOrders:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /orders/search
+            Method: get
+
   CreatePreferenceFunction:
     Type: AWS::Serverless::Function
     Properties:
