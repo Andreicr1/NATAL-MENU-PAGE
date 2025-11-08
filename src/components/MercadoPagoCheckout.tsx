@@ -141,6 +141,7 @@ export function MercadoPagoCheckout({
           pending: `${window.location.origin}/checkout/pending?orderId=${order.orderId}`,
           webhook: `${import.meta.env.VITE_AWS_API_URL}/payments/webhook`,
         },
+        external_reference: order.orderId, // CRÍTICO: Usar o mesmo orderId!
       };
 
       console.log('Criando preferência de pagamento:', preferenceData);
