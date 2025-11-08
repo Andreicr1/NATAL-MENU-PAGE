@@ -15,6 +15,8 @@ interface MercadoPagoCheckoutProps {
   }>;
   shippingCost: number;
   initialCEP?: string;
+  deliveryType: 'express' | 'scheduled' | '';
+  scheduledDate?: string;
   onSuccess: () => void;
 }
 
@@ -22,6 +24,8 @@ export function MercadoPagoCheckout({
   cartItems,
   shippingCost,
   initialCEP = '',
+  deliveryType,
+  scheduledDate = '',
   onSuccess,
 }: MercadoPagoCheckoutProps) {
   const [loading, setLoading] = useState(false);
@@ -108,6 +112,8 @@ export function MercadoPagoCheckout({
           zipCode: customerData.zipCode,
         },
         shippingCost: shippingCost,
+        deliveryType: deliveryType,
+        scheduledDate: deliveryType === 'scheduled' ? scheduledDate : undefined,
       });
 
       // 2. Criar preferência de pagamento Mercado Pago Checkout Pro

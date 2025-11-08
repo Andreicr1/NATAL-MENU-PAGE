@@ -85,6 +85,8 @@ export async function createOrder(orderData: {
   customerPhone?: string;
   shippingAddress: any;
   shippingCost?: number;
+  deliveryType?: 'express' | 'scheduled' | '';
+  scheduledDate?: string;
 }): Promise<{ order: Order }> {
   const response = await fetch(`${API_URL}/orders`, {
     method: 'POST',

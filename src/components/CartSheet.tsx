@@ -65,6 +65,8 @@ export function CartSheet({
   const [shippingDistance, setShippingDistance] = useState<number | null>(null);
   const [calculatingShipping, setCalculatingShipping] = useState(false);
   const [showScrollIndicator, setShowScrollIndicator] = useState(true);
+  const [deliveryType, setDeliveryType] = useState<'express' | 'scheduled' | ''>('');
+  const [scheduledDate, setScheduledDate] = useState<string>('');
 
   const totalWithShipping = cartTotal + (shippingCost || 0);
 
@@ -127,6 +129,14 @@ export function CartSheet({
       toast.error('Por favor, informe o CEP para calcular o frete');
       return;
     }
+    if (!deliveryType) {
+      toast.error('Por favor, selecione o tipo de entrega');
+      return;
+    }
+    if (deliveryType === 'scheduled' && !scheduledDate) {
+      toast.error('Por favor, selecione a data de entrega');
+      return;
+    }
     setShowCheckout(true);
   };
 
@@ -135,6 +145,8 @@ export function CartSheet({
     setShippingCEP('');
     setShippingCost(null);
     setShippingDistance(null);
+    setDeliveryType('');
+    setScheduledDate('');
     onClose();
   };
 
@@ -319,6 +331,87 @@ export function CartSheet({
                   </p>
                 )}
 
+                {/* Tipo de Entrega */}
+                {shippingCost !== null && (
+                  <div className="mb-[16px] p-3 bg-white rounded-lg border border-[#d4af37]">
+                    <p className="font-['Libre_Baskerville',_sans-serif] text-[#5c0108] text-[14px] font-semibold mb-3">
+                      Tipo de Entrega *
+                    </p>
+                    
+                    <div className="space-y-2">
+                      {/* Opção 1: Curto Prazo */}
+                      <label className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                        deliveryType === 'express' 
+                          ? 'border-[#5c0108] bg-[#5c0108]/5' 
+                          : 'border-gray-200 hover:border-[#d4af37]'
+                      }`}>
+                        <input
+                          type="radio"
+                          name="deliveryType"
+                          value="express"
+                          checked={deliveryType === 'express'}
+                          onChange={(e) => {
+                            setDeliveryType(e.target.value as 'express');
+                            setScheduledDate('');
+                          }}
+                          className="mt-1"
+                        />
+                        <div className="flex-1">
+                          <p className="font-['Libre_Baskerville',_sans-serif] text-[#5c0108] text-[13px] font-semibold">
+                            Curto prazo – até 3 dias
+                          </p>
+                          <p className="text-[11px] text-gray-600 mt-1">
+                            Entrega em até 3 dias após confirmação do pagamento
+                          </p>
+                        </div>
+                      </label>
+
+                      {/* Opção 2: Entrega Programada */}
+                      <label className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                        deliveryType === 'scheduled' 
+                          ? 'border-[#5c0108] bg-[#5c0108]/5' 
+                          : 'border-gray-200 hover:border-[#d4af37]'
+                      }`}>
+                        <input
+                          type="radio"
+                          name="deliveryType"
+                          value="scheduled"
+                          checked={deliveryType === 'scheduled'}
+                          onChange={(e) => setDeliveryType(e.target.value as 'scheduled')}
+                          className="mt-1"
+                        />
+                        <div className="flex-1">
+                          <p className="font-['Libre_Baskerville',_sans-serif] text-[#5c0108] text-[13px] font-semibold">
+                            Entrega programada – 22, 23 ou 24/12 (8h–22h)
+                          </p>
+                          <p className="text-[11px] text-gray-600 mt-1">
+                            Escolha a data de entrega de Natal
+                          </p>
+                        </div>
+                      </label>
+
+                      {/* Seletor de Data (aparece apenas se scheduled) */}
+                      {deliveryType === 'scheduled' && (
+                        <div className="mt-3 pl-8">
+                          <label className="block text-[12px] text-[#5c0108] font-medium mb-2">
+                            Data de Entrega:
+                          </label>
+                          <select
+                            value={scheduledDate}
+                            onChange={(e) => setScheduledDate(e.target.value)}
+                            className="w-full px-3 py-2 border-2 border-[#d4af37] rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#5c0108]"
+                          >
+                            <option value="">Selecione a data...</option>
+                            <option value="2024-12-22">22 de dezembro (domingo)</option>
+                            <option value="2024-12-23">23 de dezembro (segunda)</option>
+                            <option value="2024-12-24">24 de dezembro (terça)</option>
+                          </select>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <Separator className="bg-[#d4af37] mb-[12px]" />
                 <div className="flex justify-between items-center">
                   <span className="font-['Libre_Baskerville',_sans-serif] text-[#5c0108] text-[18px]">
@@ -371,6 +464,8 @@ export function CartSheet({
             }))}
             shippingCost={shippingCost || 0}
             initialCEP={shippingCEP}
+            deliveryType={deliveryType}
+            scheduledDate={scheduledDate}
             onSuccess={handleCheckoutSuccess}
           />
         </DialogContent>

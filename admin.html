@@ -444,6 +444,13 @@
               <button onclick="filterOrders('cancelled')" id="filter-cancelled" class="px-4 py-2 rounded-lg text-sm font-medium btn-secondary text-slate-700">
                 Cancelados
               </button>
+              <div class="w-full border-t border-slate-200 my-2"></div>
+              <button onclick="filterOrders('express')" id="filter-express" class="px-4 py-2 rounded-lg text-sm font-medium btn-secondary text-slate-700">
+                Entrega Curto Prazo
+              </button>
+              <button onclick="filterOrders('scheduled')" id="filter-scheduled" class="px-4 py-2 rounded-lg text-sm font-medium btn-secondary text-slate-700">
+                Entrega Programada
+              </button>
             </div>
           </div>
 
@@ -1131,12 +1138,14 @@
 
     function filterOrders(status) {
       currentFilter = status;
-      ['all', 'pending', 'approved', 'cancelled'].forEach(s => {
+      ['all', 'pending', 'approved', 'cancelled', 'express', 'scheduled'].forEach(s => {
         const btn = document.getElementById(`filter-${s}`);
-        if (s === status) {
-          btn.className = 'px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 text-white';
-        } else {
-          btn.className = 'px-4 py-2 rounded-lg text-sm font-medium btn-secondary text-slate-700';
+        if (btn) {
+          if (s === status) {
+            btn.className = 'px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 text-white';
+          } else {
+            btn.className = 'px-4 py-2 rounded-lg text-sm font-medium btn-secondary text-slate-700';
+          }
         }
       });
 
@@ -1183,9 +1192,16 @@
 
       let orders = allOrders;
 
-      // Filtrar por status
-      if (currentFilter !== 'all') {
+      // Filtrar por status de pagamento
+      if (['pending', 'approved', 'cancelled'].includes(currentFilter)) {
         orders = orders.filter(o => o.paymentStatus === currentFilter);
+      }
+
+      // Filtrar por tipo de entrega
+      if (currentFilter === 'express') {
+        orders = orders.filter(o => o.deliveryType === 'express');
+      } else if (currentFilter === 'scheduled') {
+        orders = orders.filter(o => o.deliveryType === 'scheduled');
       }
 
       // Filtrar por número de transação
@@ -1247,12 +1263,26 @@
                       ${order.paymentMethod.toUpperCase()}
                     </span>
                   ` : ''}
+                  ${order.deliveryType === 'express' ? `
+                    <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                      Entrega Curto Prazo
+                    </span>
+                  ` : order.deliveryType === 'scheduled' ? `
+                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                      Entrega Programada
+                    </span>
+                  ` : ''}
                 </div>
                 <div class="space-y-1.5">
                   <p class="text-sm text-slate-600"><strong>Cliente:</strong> ${order.customerName || 'N/A'}</p>
                   <p class="text-sm text-slate-600"><strong>Email:</strong> ${order.customerEmail || 'N/A'}</p>
                   ${order.customerPhone ? `<p class="text-sm text-slate-600"><strong>Telefone:</strong> ${order.customerPhone}</p>` : ''}
                   <p class="text-sm text-slate-600"><strong>Data:</strong> ${new Date(order.createdAt).toLocaleString('pt-BR')}</p>
+                  ${order.deliveryType === 'scheduled' && order.scheduledDate ? `
+                    <p class="text-sm text-green-700 font-semibold"><strong>Data Programada:</strong> ${new Date(order.scheduledDate).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })} (8h-22h)</p>
+                  ` : order.deliveryType === 'express' ? `
+                    <p class="text-sm text-blue-700"><strong>Entrega:</strong> Até 3 dias após pagamento</p>
+                  ` : ''}
                   <div class="pt-2 border-t border-slate-100 mt-2">
                     <p class="text-sm text-slate-600"><strong>ID Transação MP:</strong> <span class="font-mono text-purple-600">${transactionId}</span></p>
                     <p class="text-sm text-slate-600"><strong>Referência:</strong> <span class="font-mono text-slate-500">${externalRef}</span></p>

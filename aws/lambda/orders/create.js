@@ -21,7 +21,7 @@ exports.handler = async (event) => {
     const requestBody = JSON.parse(event.body);
     console.log('[CREATE_ORDER] Request body:', JSON.stringify(requestBody, null, 2));
     
-    const { items, customerEmail, customerName, shippingAddress, customerPhone, shippingCost, transactionId, externalReference } = requestBody;
+    const { items, customerEmail, customerName, shippingAddress, customerPhone, shippingCost, transactionId, externalReference, deliveryType, scheduledDate } = requestBody;
 
     // Validação de dados obrigatórios
     if (!items || items.length === 0) {
@@ -72,6 +72,8 @@ exports.handler = async (event) => {
       paymentMethod: null,
       transactionId: transactionId || null, // ID da transação do Mercado Pago
       externalReference: externalReference || orderId, // Referência externa
+      deliveryType: deliveryType || 'express', // Tipo de entrega
+      scheduledDate: scheduledDate || null, // Data programada (se aplicável)
       createdAt,
       updatedAt: createdAt
     };

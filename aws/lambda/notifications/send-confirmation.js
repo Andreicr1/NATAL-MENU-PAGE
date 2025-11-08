@@ -627,13 +627,31 @@ function generateEmailTemplate(order, orderDate) {
       <!-- Delivery Info -->
       <div class="delivery-info">
         <h4>Informações de Entrega</h4>
-        <p><strong>Datas disponíveis:</strong> 22, 23 ou 24 de dezembro de 2024</p>
-        <p><strong>Horário:</strong> Das 8h às 22h</p>
+        ${order.deliveryType === 'scheduled' && order.scheduledDate ? `
+          <p style="margin-bottom: 10px;"><strong>Tipo:</strong> Entrega Programada</p>
+          <p style="font-size: 16px; color: #5c0108; font-weight: bold;">
+            Data: ${new Date(order.scheduledDate).toLocaleDateString('pt-BR', { 
+              day: '2-digit', 
+              month: 'long', 
+              year: 'numeric',
+              weekday: 'long'
+            })}
+          </p>
+          <p><strong>Horário:</strong> Das 8h às 22h</p>
+        ` : order.deliveryType === 'express' ? `
+          <p style="margin-bottom: 10px;"><strong>Tipo:</strong> Entrega Curto Prazo</p>
+          <p style="font-size: 16px; color: #5c0108; font-weight: bold;">
+            Prazo: Até 3 dias após confirmação do pagamento
+          </p>
+        ` : `
+          <p><strong>Datas disponíveis:</strong> 22, 23 ou 24 de dezembro de 2024</p>
+          <p><strong>Horário:</strong> Das 8h às 22h</p>
+        `}
         <p style="margin-top: 15px;">
           <strong>Atenção:</strong> Entraremos em contato pelo WhatsApp <strong>${formatPhone(
             order.customerPhone
           )}</strong>
-          para combinar o melhor horário de entrega!
+          para ${order.deliveryType === 'scheduled' ? 'confirmar' : 'combinar'} o horário de entrega!
         </p>
       </div>
 
@@ -721,12 +739,25 @@ ${
 ${order.shippingAddress.city} - ${order.shippingAddress.state}
 CEP: ${formatCEP(order.shippingAddress.zipCode)}
 
-ENTREGA DE NATAL:
-• Datas: 22, 23 ou 24 de dezembro
-• Horário: 8h às 22h
-
+INFORMAÇÕES DE ENTREGA:
+${order.deliveryType === 'scheduled' && order.scheduledDate ? `
+Tipo: Entrega Programada
+Data: ${new Date(order.scheduledDate).toLocaleDateString('pt-BR', { 
+  day: '2-digit', 
+  month: 'long', 
+  year: 'numeric',
+  weekday: 'long'
+})}
+Horário: 8h às 22h
+` : order.deliveryType === 'express' ? `
+Tipo: Entrega Curto Prazo
+Prazo: Até 3 dias após confirmação do pagamento
+` : `
+Datas: 22, 23 ou 24 de dezembro
+Horário: 8h às 22h
+`}
 Entraremos em contato pelo WhatsApp ${formatPhone(order.customerPhone)}
-para combinar o melhor horário!
+para ${order.deliveryType === 'scheduled' ? 'confirmar' : 'combinar'} o horário!
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Dúvidas? Fale conosco:
