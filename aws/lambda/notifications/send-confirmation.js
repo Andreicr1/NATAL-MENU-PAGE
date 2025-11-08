@@ -254,7 +254,7 @@ async function sendEmailViaSendGrid(order) {
       name: fromName
     },
     replyTo: replyToEmail,
-    subject: `🎄 Pedido Confirmado - Sweet Bar #${order.orderNumber || order.orderId.substring(0, 8).toUpperCase()}`,
+    subject: `Pedido Confirmado - Sweet Bar #${order.orderNumber || order.orderId.substring(0, 8).toUpperCase()}`,
     text: emailText,
     html: emailHtml,
     trackingSettings: {
@@ -264,6 +264,7 @@ async function sendEmailViaSendGrid(order) {
     customArgs: {
       orderId: order.orderId,
       orderNumber: order.orderNumber || '',
+      transactionId: order.transactionId || order.paymentId || '',
       type: 'order_confirmation'
     }
   };
@@ -549,23 +550,28 @@ function generateEmailTemplate(order, orderDate) {
   <div class="email-container">
     <!-- Header -->
     <div class="header">
-      <h1>🎄 Sweet Bar Chocolates</h1>
+      <h1>Sweet Bar Chocolates</h1>
       <p>Ateliê de Chocolate Premium</p>
     </div>
 
     <!-- Content -->
     <div class="content">
-      <h2>Olá ${order.customerName}! 🎉</h2>
+      <h2>Olá ${order.customerName}!</h2>
       <p>Seu pedido foi <strong>confirmado com sucesso</strong> e já está sendo preparado com todo carinho!</p>
 
       <!-- Order Info -->
       <div class="order-info">
         <div class="order-number">
-          📦 Pedido #${order.orderNumber || order.orderId.substring(0, 8).toUpperCase()}
+          Pedido #${order.orderNumber || order.orderId.substring(0, 8).toUpperCase()}
         </div>
         <p style="margin: 0; color: #666; font-size: 14px;">
           Realizado em: ${orderDate}
         </p>
+        ${order.transactionId || order.paymentId ? `
+        <p style="margin: 8px 0 0 0; color: #666; font-size: 13px;">
+          <strong>ID da Transação:</strong> <span style="font-family: monospace; color: #8b5cf6;">${order.transactionId || order.paymentId}</span>
+        </p>
+        ` : ''}
 
         <!-- Products -->
         <div class="product-list">
@@ -606,7 +612,7 @@ function generateEmailTemplate(order, orderDate) {
 
       <!-- Delivery Address -->
       <div class="address-box">
-        <h4>📍 Endereço de Entrega</h4>
+        <h4>Endereço de Entrega</h4>
         <p>${order.shippingAddress.street}, ${order.shippingAddress.number}</p>
         ${
           order.shippingAddress.complement
@@ -620,11 +626,11 @@ function generateEmailTemplate(order, orderDate) {
 
       <!-- Delivery Info -->
       <div class="delivery-info">
-        <h4>🎁 Informações de Entrega</h4>
+        <h4>Informações de Entrega</h4>
         <p><strong>Datas disponíveis:</strong> 22, 23 ou 24 de dezembro de 2024</p>
         <p><strong>Horário:</strong> Das 8h às 22h</p>
         <p style="margin-top: 15px;">
-          <strong>📱 Atenção:</strong> Entraremos em contato pelo WhatsApp <strong>${formatPhone(
+          <strong>Atenção:</strong> Entraremos em contato pelo WhatsApp <strong>${formatPhone(
             order.customerPhone
           )}</strong>
           para combinar o melhor horário de entrega!
@@ -634,13 +640,13 @@ function generateEmailTemplate(order, orderDate) {
       <p style="margin-top: 30px; text-align: center;">
         <a href="https://wa.me/5548991960811?text=Ol%C3%A1!%20Tenho%20uma%20d%C3%BAvida%20sobre%20o%20pedido%20${order.orderNumber || order.orderId.substring(0, 8).toUpperCase()}"
            class="cta-button">
-          💬 Falar com a Sweet Bar
+          Falar com a Sweet Bar
         </a>
       </p>
 
       <p style="margin-top: 30px; font-size: 14px; color: #666; text-align: center;">
         Qualquer dúvida, estamos à disposição!<br>
-        Equipe Sweet Bar 🍫
+        Equipe Sweet Bar
       </p>
     </div>
 
@@ -649,12 +655,12 @@ function generateEmailTemplate(order, orderDate) {
       <p><strong>Sweet Bar Chocolates</strong></p>
       <p>Chocolates Artesanais Premium</p>
       <p style="margin-top: 15px;">
-        📱 WhatsApp: (48) 99196-0811<br>
-        📧 Email: contato@sweetbarchocolates.com.br
+        WhatsApp: (48) 99196-0811<br>
+        Email: contato@sweetbarchocolates.com.br
       </p>
       <div class="social-links">
         <a href="https://www.instagram.com/sweetbar.br" target="_blank">
-          📷 Instagram: @sweetbar.br
+          Instagram: @sweetbar.br
         </a>
       </div>
       <p style="margin-top: 20px; font-size: 12px; color: #d4af37;">
@@ -676,18 +682,19 @@ function generateEmailText(order, orderDate) {
   }
 
   return `
-🎄 SWEET BAR CHOCOLATES - Confirmação de Pedido
+SWEET BAR CHOCOLATES - Confirmação de Pedido
 
 Olá ${order.customerName}!
 
-Seu pedido foi CONFIRMADO com sucesso! ✅
+Seu pedido foi CONFIRMADO com sucesso!
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📦 PEDIDO #${order.orderNumber || order.orderId.substring(0, 8).toUpperCase()}
+PEDIDO #${order.orderNumber || order.orderId.substring(0, 8).toUpperCase()}
 Data: ${orderDate}
+${order.transactionId || order.paymentId ? `ID da Transação: ${order.transactionId || order.paymentId}` : ''}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🍫 ITENS:
+ITENS:
 ${order.items
   .map(
     item =>
@@ -704,7 +711,7 @@ Frete:    R$ ${order.shippingCost.toFixed(2)}
 TOTAL:    R$ ${order.total.toFixed(2)}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📍 ENDEREÇO DE ENTREGA:
+ENDEREÇO DE ENTREGA:
 ${order.shippingAddress.street}, ${order.shippingAddress.number}
 ${
   order.shippingAddress.complement
@@ -714,12 +721,12 @@ ${
 ${order.shippingAddress.city} - ${order.shippingAddress.state}
 CEP: ${formatCEP(order.shippingAddress.zipCode)}
 
-🎁 ENTREGA DE NATAL:
+ENTREGA DE NATAL:
 • Datas: 22, 23 ou 24 de dezembro
 • Horário: 8h às 22h
 
-📱 Entraremos em contato pelo WhatsApp ${formatPhone(order.customerPhone)}
-   para combinar o melhor horário!
+Entraremos em contato pelo WhatsApp ${formatPhone(order.customerPhone)}
+para combinar o melhor horário!
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Dúvidas? Fale conosco:
@@ -728,7 +735,7 @@ Instagram: @sweetbar.br
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Obrigado pela preferência!
-Equipe Sweet Bar 🍫
+Equipe Sweet Bar
   `.trim();
 }
 
@@ -834,17 +841,18 @@ async function sendViaEvolution(phone, message) {
  */
 function generateWhatsAppMessage(order) {
   return `
-🎄 *Sweet Bar Chocolates*
+*Sweet Bar Chocolates*
 
 Olá *${order.customerName}*!
 
-✅ Seu pedido foi *confirmado com sucesso*!
+Seu pedido foi *confirmado com sucesso*!
 
 ━━━━━━━━━━━━━━━━━━━━━
-📦 *Pedido #${order.orderNumber || order.orderId.substring(0, 8).toUpperCase()}*
+*Pedido #${order.orderNumber || order.orderId.substring(0, 8).toUpperCase()}*
+${order.transactionId || order.paymentId ? `ID Transação: ${order.transactionId || order.paymentId}` : ''}
 ━━━━━━━━━━━━━━━━━━━━━
 
-🍫 *Itens:*
+*Itens:*
 ${order.items
   .map(
     item =>
@@ -860,19 +868,19 @@ Frete: R$ ${order.shippingCost.toFixed(2)}
 *TOTAL: R$ ${order.total.toFixed(2)}*
 ━━━━━━━━━━━━━━━━━━━━━
 
-📍 *Entrega em:*
+*Entrega em:*
 ${order.shippingAddress.street}, ${order.shippingAddress.number}
 ${order.shippingAddress.neighborhood}
 ${order.shippingAddress.city} - ${order.shippingAddress.state}
 CEP: ${formatCEP(order.shippingAddress.zipCode)}
 
-🎁 *Entrega de Natal:*
-📅 Dias: 22, 23 ou 24 de dezembro
-🕐 Horário: 8h às 22h
+*Entrega de Natal:*
+Dias: 22, 23 ou 24 de dezembro
+Horário: 8h às 22h
 
 Em breve entraremos em contato para combinar o melhor horário de entrega!
 
-Obrigado pela preferência! 🍫
+Obrigado pela preferência!
 
 _Sweet Bar - Chocolates Artesanais Premium_
   `.trim();

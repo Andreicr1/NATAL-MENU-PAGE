@@ -37,12 +37,12 @@ $orderData = @{
 try {
     $response = Invoke-RestMethod -Uri "$API_URL/orders" -Method Post -Body $orderData -ContentType "application/json"
     $orderId = $response.order.orderId
-    
+
     Write-Host "✅ Pedido criado: $orderId" -ForegroundColor Green
-    
+
     # Simular pagamento aprovado (chamar função de notificação diretamente)
     Write-Host "`n[2/2] Simulando pagamento aprovado e enviando email..." -ForegroundColor Yellow
-    
+
     # Atualizar status do pedido para approved
     aws dynamodb update-item `
         --table-name natal-orders `
@@ -50,35 +50,34 @@ try {
         --update-expression "SET paymentStatus = :status, #st = :st" `
         --expression-attribute-names '{\"#st\":\"status\"}' `
         --expression-attribute-values '{\":status\":{\"S\":\"approved\"},\":st\":{\"S\":\"confirmed\"}}'
-    
+
     Write-Host "✅ Status atualizado para approved" -ForegroundColor Green
-    
+
     # Invocar função de notificação
     Write-Host "`n📧 Invocando função de envio de email..." -ForegroundColor Yellow
-    
+
     $payload = @{
         orderId = $orderId
     } | ConvertTo-Json
-    
+
     aws lambda invoke `
         --function-name natal-menu-backend-v2-SendConfirmationFunction-ianCzRc8F1yk `
         --payload $payload `
         --cli-binary-format raw-in-base64-out `
         response.json
-    
+
     Write-Host "`n📬 Resposta da função:" -ForegroundColor Cyan
     Get-Content response.json | ConvertFrom-Json | ConvertTo-Json -Depth 10
-    
+
     Remove-Item response.json -ErrorAction SilentlyContinue
-    
+
     Write-Host "`n========================================" -ForegroundColor Cyan
     Write-Host "TESTE CONCLUÍDO!" -ForegroundColor Green
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host "`n✅ Verifique seu email: andrei.rachadel@outlook.com" -ForegroundColor Yellow
     Write-Host "✅ Verifique os logs:" -ForegroundColor Yellow
     Write-Host "   aws logs tail /aws/lambda/natal-menu-backend-v2-SendConfirmationFunction-ianCzRc8F1yk --since 5m`n" -ForegroundColor Gray
-    
+
 } catch {
     Write-Host "`n❌ Erro: $_" -ForegroundColor Red
 }
-
