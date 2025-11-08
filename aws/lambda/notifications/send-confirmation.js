@@ -17,6 +17,7 @@ const {
   SecretsManagerClient,
   GetSecretValueCommand,
 } = require('@aws-sdk/client-secrets-manager');
+const sgMail = require('@sendgrid/mail');
 
 // Initialize clients
 const dynamoClient = new DynamoDBClient({});
@@ -28,6 +29,10 @@ const secretsClient = new SecretsManagerClient({});
 
 // Cache for secrets
 let twilioCredentials = null;
+let sendGridApiKey = null;
+
+// Email provider preference: 'sendgrid' or 'ses'
+const EMAIL_PROVIDER = process.env.EMAIL_PROVIDER || 'sendgrid';
 
 /**
  * Main handler
@@ -191,16 +196,106 @@ async function sendWhatsAppWithRetry(order, maxRetries = 3) {
 }
 
 /**
- * Send confirmation email via SES
+ * Get SendGrid API Key from Secrets Manager
+ */
+async function getSendGridApiKey() {
+  if (sendGridApiKey) return sendGridApiKey;
+
+  try {
+    const response = await secretsClient.send(
+      new GetSecretValueCommand({ SecretId: process.env.SECRET_NAME })
+    );
+    const secret = JSON.parse(response.SecretString);
+    sendGridApiKey = secret.sendgrid_api_key || secret.SENDGRID_API_KEY;
+    return sendGridApiKey;
+  } catch (error) {
+    console.error('[SENDGRID] Failed to get API key:', error);
+    throw error;
+  }
+}
+
+/**
+ * Send confirmation email via SendGrid or SES
  */
 async function sendEmail(order) {
+  if (EMAIL_PROVIDER === 'sendgrid') {
+    return await sendEmailViaSendGrid(order);
+  } else {
+    return await sendEmailViaSES(order);
+  }
+}
+
+/**
+ * Send email via SendGrid (Recommended - No approval needed!)
+ */
+async function sendEmailViaSendGrid(order) {
+  const apiKey = await getSendGridApiKey();
+  sgMail.setApiKey(apiKey);
+
+  const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'noreply@sweetbarchocolates.com.br';
+  const fromName = process.env.SENDGRID_FROM_NAME || 'Sweet Bar Chocolates';
+  const replyToEmail = process.env.SES_REPLY_TO_EMAIL || 'contato@sweetbarchocolates.com.br';
+
+  const orderDate = new Date(order.createdAt).toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  const emailHtml = generateEmailTemplate(order, orderDate);
+  const emailText = generateEmailText(order, orderDate);
+
+  const msg = {
+    to: order.customerEmail,
+    from: {
+      email: fromEmail,
+      name: fromName
+    },
+    replyTo: replyToEmail,
+    subject: `🎄 Pedido Confirmado - Sweet Bar #${order.orderNumber || order.orderId.substring(0, 8).toUpperCase()}`,
+    text: emailText,
+    html: emailHtml,
+    trackingSettings: {
+      clickTracking: { enable: false },
+      openTracking: { enable: true }
+    },
+    customArgs: {
+      orderId: order.orderId,
+      orderNumber: order.orderNumber || '',
+      type: 'order_confirmation'
+    }
+  };
+
+  console.log('[SENDGRID] Sending email to:', order.customerEmail);
+  
+  const response = await sgMail.send(msg);
+  console.log('[SENDGRID] Email sent successfully! Status:', response[0].statusCode);
+  console.log('[SENDGRID] Message ID:', response[0].headers['x-message-id']);
+  
+  return response;
+}
+
+/**
+ * Send email via AWS SES (Fallback - Requires approval)
+ */
+async function sendEmailViaSES(order) {
   const fromEmail =
     process.env.SES_FROM_EMAIL || 'noreply@sweetbarchocolates.com.br';
   const replyToEmail =
     process.env.SES_REPLY_TO_EMAIL || 'contato@sweetbarchocolates.com.br';
 
-  const emailHtml = generateEmailTemplate(order);
-  const emailText = generateEmailText(order);
+  const orderDate = new Date(order.createdAt).toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  const emailHtml = generateEmailTemplate(order, orderDate);
+  const emailText = generateEmailText(order, orderDate);
 
   const params = {
     Source: fromEmail,
@@ -235,21 +330,23 @@ async function sendEmail(order) {
   const command = new SendEmailCommand(params);
   const response = await sesClient.send(command);
 
-  console.log('[EMAIL] SES MessageId:', response.MessageId);
+  console.log('[SES] MessageId:', response.MessageId);
   return response;
 }
 
 /**
  * Generate HTML email template
  */
-function generateEmailTemplate(order) {
-  const orderDate = new Date(order.createdAt).toLocaleString('pt-BR', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+function generateEmailTemplate(order, orderDate) {
+  if (!orderDate) {
+    orderDate = new Date(order.createdAt).toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
 
   return `
 <!DOCTYPE html>
@@ -573,8 +670,10 @@ function generateEmailTemplate(order) {
 /**
  * Generate plain text email
  */
-function generateEmailText(order) {
-  const orderDate = new Date(order.createdAt).toLocaleString('pt-BR');
+function generateEmailText(order, orderDate) {
+  if (!orderDate) {
+    orderDate = new Date(order.createdAt).toLocaleString('pt-BR');
+  }
 
   return `
 🎄 SWEET BAR CHOCOLATES - Confirmação de Pedido

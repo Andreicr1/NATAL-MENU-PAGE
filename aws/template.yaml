@@ -377,10 +377,13 @@ Resources:
       MemorySize: 512
       Environment:
         Variables:
+          EMAIL_PROVIDER: sendgrid  # 'sendgrid' or 'ses'
+          SENDGRID_FROM_EMAIL: noreply@sweetbarchocolates.com.br
+          SENDGRID_FROM_NAME: Sweet Bar Chocolates
           SES_FROM_EMAIL: noreply@sweetbarchocolates.com.br
           SES_REPLY_TO_EMAIL: contato@sweetbarchocolates.com.br
           BCC_EMAIL: contato@sweetbarchocolates.com.br
-          # Twilio/Evolution configurados via Secrets Manager (configure manualmente após deploy)
+          # SendGrid API Key configurado via Secrets Manager
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref OrdersTable
