@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teste de Upload S3</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .log { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 5px; }
+    .error { background: #fee; color: #c00; }
+    .success { background: #efe; color: #060; }
+  </style>
+</head>
+<body>
+  <h1>Teste de Upload S3</h1>
+  <input type="file" id="fileInput" accept="image/*">
+  <button onclick="testUpload()">Testar Upload</button>
+  <div id="logs"></div>
+
+  <script>
+    const API_URL = 'https://963pa03698.execute-api.us-east-1.amazonaws.com';
+
+    function log(message, type = 'log') {
+      const div = document.createElement('div');
+      div.className = `log ${type}`;
+      div.textContent = message;
+      document.getElementById('logs').appendChild(div);
+      console.log(message);
+    }
+
+    async function testUpload() {
+      const file = document.getElementById('fileInput').files[0];
+      if (!file) {
+        alert('Selecione um arquivo');
+        return;
+      }
+
+      document.getElementById('logs').innerHTML = '';
+      log('Iniciando teste de upload...');
+      log(`Arquivo: ${file.name} (${file.size} bytes)`);
+
+      try {
+        // 1. Obter presigned URL
+        log('1. Solicitando presigned URL...');
+        const presignedResponse = await fetch(`${API_URL}/upload/presigned-url`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            fileName: file.name,
+            fileType: file.type
+          })
+        });
+
+        log(`Status: ${presignedResponse.status} ${presignedResponse.statusText}`);
+
+        if (!presignedResponse.ok) {
+          const errorText = await presignedResponse.text();
+          log(`Erro: ${errorText}`, 'error');
+          return;
+        }
+
+        const { uploadUrl, fileUrl } = await presignedResponse.json();
+        log(`✅ Presigned URL obtida`, 'success');
+        log(`Upload URL: ${uploadUrl.substring(0, 100)}...`);
+        log(`File URL: ${fileUrl}`);
+
+        // 2. Upload para S3
+        log('2. Fazendo upload para S3...');
+        const uploadResponse = await fetch(uploadUrl, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': file.type
+          },
+          body: file
+        });
+
+        log(`Status: ${uploadResponse.status} ${uploadResponse.statusText}`);
+        log(`Headers: ${JSON.stringify(Object.fromEntries(uploadResponse.headers.entries()))}`);
+
+        if (!uploadResponse.ok) {
+          const errorText = await uploadResponse.text();
+          log(`Erro no upload: ${errorText}`, 'error');
+          log(`Status Code: ${uploadResponse.status}`, 'error');
+          return;
+        }
+
+        log(`✅ Upload bem-sucedido!`, 'success');
+        log(`Arquivo disponível em: ${fileUrl}`, 'success');
+
+        // 3. Testar acesso ao arquivo
+        log('3. Testando acesso ao arquivo...');
+        const testResponse = await fetch(fileUrl, { method: 'HEAD' });
+        log(`Status: ${testResponse.status} ${testResponse.statusText}`);
+
+        if (testResponse.ok) {
+          log(`✅ Arquivo acessível publicamente!`, 'success');
+          log(`Visualizar: ${fileUrl}`);
+        } else {
+          log(`⚠️ Arquivo não está acessível publicamente`, 'error');
+        }
+
+      } catch (error) {
+        log(`Erro: ${error.message}`, 'error');
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>
+
+
+

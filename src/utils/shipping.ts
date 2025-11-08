@@ -31,6 +31,7 @@ interface CEPData {
   gia: string;
   ddd: string;
   siafi: string;
+  erro?: boolean;
 }
 
 interface ShippingResult {
@@ -86,7 +87,7 @@ async function getCEPCoordinates(cep: string): Promise<{ lat: number; lng: numbe
     const data: CEPData = await response.json();
 
     if (data.erro) {
-      throw new Error('CEP inválido');
+      return null; // Retorna null em vez de lançar erro para não poluir console
     }
 
     console.log('ViaCEP retornou:', { cidade: data.localidade, bairro: data.bairro, cep: cleanCep });
@@ -205,7 +206,8 @@ export async function calculateShipping(destinationCep: string): Promise<Shippin
   try {
     const cleanCep = destinationCep.replace(/\D/g, '');
 
-    if (cleanCep.length !== 8) {
+    // Validação rigorosa: só processa CEPs com exatamente 8 dígitos
+    if (!cleanCep || cleanCep.length !== 8 || !/^\d{8}$/.test(cleanCep)) {
       return {
         success: false,
         message: 'CEP inválido. Deve conter 8 dígitos.'
@@ -241,7 +243,10 @@ export async function calculateShipping(destinationCep: string): Promise<Shippin
       message: `Entrega para ${destCoords.city} (${distance.toFixed(1)} km)`
     };
   } catch (error: any) {
-    console.error('Erro ao calcular frete:', error);
+    // Não loga erros de CEP inválido para não poluir console
+    if (!error.message?.includes('CEP')) {
+      console.error('Erro ao calcular frete:', error);
+    }
     return {
       success: false,
       message: 'Erro ao calcular frete. Verifique o CEP e tente novamente.'

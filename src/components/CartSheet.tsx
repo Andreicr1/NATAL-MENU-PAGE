@@ -6,15 +6,22 @@ import {
   ShoppingCart,
   Trash2,
 } from 'lucide-react';
+import * as React from 'react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { calculateShipping } from '../utils/shipping';
-import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
-import { Input } from './ui/input';
 import { Separator } from './ui/separator';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
-import { UnifiedCheckout } from './UnifiedCheckout';
+import { MercadoPagoCheckout } from './MercadoPagoCheckout';
+
+// Simple Input component
+const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+  ({ className, ...props }, ref) => (
+    <input ref={ref} className={`flex h-10 w-full rounded-md border px-3 py-2 text-base ${className || ''}`} {...props} />
+  )
+);
+Input.displayName = "Input";
 
 interface Product {
   id: string;
@@ -191,7 +198,7 @@ export function CartSheet({
                   >
                     {/* Product Image */}
                     <div className="w-[80px] h-[107px] rounded-[8px] overflow-hidden bg-[#f5f5f5] flex-shrink-0">
-                      <ImageWithFallback
+                      <img
                         src={item.product.image}
                         alt={item.product.name}
                         className="w-full h-full object-cover"
@@ -284,7 +291,7 @@ export function CartSheet({
                     value={shippingCEP}
                     onChange={e => handleCEPChange(e.target.value)}
                     maxLength={9}
-                    className="text-sm border-[#d4af37]"
+                    className="text-base border-[#d4af37]"
                     disabled={calculatingShipping}
                   />
                   {calculatingShipping && (
@@ -355,16 +362,15 @@ export function CartSheet({
             </DialogTitle>
           </DialogHeader>
 
-          <UnifiedCheckout
+          <MercadoPagoCheckout
             cartItems={cart.map(item => ({
               id: item.product.id,
               name: item.product.name,
               quantity: item.quantity,
               priceValue: item.product.priceValue,
             }))}
-            cartTotal={cartTotal}
-            initialCEP={shippingCEP.replace(/\D/g, '')}
-            initialShippingCost={shippingCost}
+            shippingCost={shippingCost || 0}
+            initialCEP={shippingCEP}
             onSuccess={handleCheckoutSuccess}
           />
         </DialogContent>

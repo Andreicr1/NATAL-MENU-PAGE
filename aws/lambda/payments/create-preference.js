@@ -1,5 +1,8 @@
 const { MercadoPagoConfig, Preference } = require('mercadopago');
-const { SecretsManagerClient, GetSecretValueCommand } = require('@aws-sdk/client-secrets-manager');
+const {
+  SecretsManagerClient,
+  GetSecretValueCommand,
+} = require('@aws-sdk/client-secrets-manager');
 
 const secretsClient = new SecretsManagerClient({});
 let cachedToken = null;
@@ -7,7 +10,9 @@ let cachedToken = null;
 async function getAccessToken() {
   if (cachedToken) return cachedToken;
 
-  const command = new GetSecretValueCommand({ SecretId: process.env.SECRET_NAME });
+  const command = new GetSecretValueCommand({
+    SecretId: process.env.SECRET_NAME,
+  });
   const response = await secretsClient.send(command);
   const secret = JSON.parse(response.SecretString);
   cachedToken = secret.access_token;
@@ -18,12 +23,12 @@ function generateIdempotencyKey() {
   return `${Date.now()}-${Math.random().toString(36).substring(7)}`;
 }
 
-exports.handler = async (event) => {
+exports.handler = async event => {
   const headers = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+    'Access-Control-Allow-Headers': 'Content-Type,Authorization',
   };
 
   if (event.requestContext.http.method === 'OPTIONS') {
@@ -41,13 +46,13 @@ exports.handler = async (event) => {
       external_reference,
       notification_url,
       statement_descriptor,
-      metadata
+      metadata,
     } = requestBody;
 
     const accessToken = await getAccessToken();
     const client = new MercadoPagoConfig({
       accessToken,
-      options: { timeout: 5000 }
+      options: { timeout: 5000 },
     });
 
     const preference = new Preference(client);
@@ -55,33 +60,58 @@ exports.handler = async (event) => {
     // Usar back_urls (formato do MP) ou backUrls (formato legado)
     const urls = back_urls || backUrls;
 
+    // Mapear items do carrinho
+    const mappedItems = items.map(item => {
+      const unitPrice = parseFloat(item.unit_price || item.priceValue);
+      if (isNaN(unitPrice) || unitPrice <= 0) {
+        throw new Error(
+          `Invalid unit_price for item ${item.id || item.title || 'unknown'}: ${
+            item.unit_price || item.priceValue
+          }`
+        );
+      }
+      return {
+        id: item.id || String(Date.now()),
+        title: item.title || item.name || 'Produto',
+        quantity: parseInt(item.quantity) || 1,
+        unit_price: unitPrice,
+        currency_id: item.currency_id || 'BRL',
+        description: item.description || item.title || item.name || '',
+        category_id: 'food', // Categoria: alimentos
+      };
+    });
+
+    // Adicionar frete como item separado (se houver)
+    const shippingCost = parseFloat(
+      requestBody.shipping_cost || requestBody.shippingCost || 0
+    );
+    if (shippingCost > 0) {
+      mappedItems.push({
+        id: 'shipping',
+        title: 'Frete',
+        quantity: 1,
+        unit_price: shippingCost,
+        currency_id: 'BRL',
+        description: 'Custo de entrega',
+      });
+    }
+
     const body = {
-      items: items.map(item => {
-        const unitPrice = parseFloat(item.unit_price || item.priceValue);
-        if (isNaN(unitPrice) || unitPrice <= 0) {
-          throw new Error(`Invalid unit_price for item ${item.id || item.title || 'unknown'}: ${item.unit_price || item.priceValue}`);
-        }
-        return {
-          id: item.id || String(Date.now()),
-          title: item.title || item.name || 'Produto',
-          quantity: parseInt(item.quantity) || 1,
-          unit_price: unitPrice,
-          currency_id: item.currency_id || 'BRL',
-          description: item.description || item.title || item.name || ''
-        };
-      }),
+      items: mappedItems,
       payer: {
-        name: payer.name,
+        name: payer.name?.split(' ')[0] || payer.name,
+        surname: payer.name?.split(' ').slice(1).join(' ') || payer.name,
         email: payer.email,
         phone: {
-          area_code: payer.phone?.area_code || payer.phone?.substring(0, 2) || '',
-          number: payer.phone?.number || payer.phone?.substring(2) || ''
-        }
+          area_code:
+            payer.phone?.area_code || payer.phone?.substring(0, 2) || '',
+          number: payer.phone?.number || payer.phone?.substring(2) || '',
+        },
       },
       back_urls: {
         success: urls?.success || `${event.headers.origin}/checkout/success`,
         failure: urls?.failure || `${event.headers.origin}/checkout/failure`,
-        pending: urls?.pending || `${event.headers.origin}/checkout/pending`
+        pending: urls?.pending || `${event.headers.origin}/checkout/pending`,
       },
       auto_return: auto_return || 'approved',
       statement_descriptor: statement_descriptor || 'SWEET BAR CHOCOLATES',
@@ -93,20 +123,24 @@ exports.handler = async (event) => {
         excluded_payment_methods: [],
         excluded_payment_types: [
           { id: 'ticket' }, // Boleto bancário
-          { id: 'atm' }     // Débito automático
-        ]
+        ],
       },
       metadata: metadata || {},
       expires: false,
       binary_mode: false,
-      purpose: 'wallet_purchase' // Força checkout web ao invés de app
+      // REMOVIDO 'purpose' para permitir pagamento SEM LOGIN (guest checkout)
+      // Com purpose, MP força login
+      // Sem purpose, permite pagar como convidado direto
     };
 
     const requestOptions = {
-      idempotencyKey: generateIdempotencyKey()
+      idempotencyKey: generateIdempotencyKey(),
     };
 
-    console.log('Creating Mercado Pago preference:', JSON.stringify(body, null, 2));
+    console.log(
+      'Creating Mercado Pago preference:',
+      JSON.stringify(body, null, 2)
+    );
 
     const result = await preference.create({ body, requestOptions });
 
@@ -119,8 +153,8 @@ exports.handler = async (event) => {
         id: result.id,
         initPoint: result.init_point,
         sandboxInitPoint: result.sandbox_init_point,
-        externalReference: result.external_reference
-      })
+        externalReference: result.external_reference,
+      }),
     };
   } catch (error) {
     console.error('Error creating preference:', error);
@@ -129,8 +163,8 @@ exports.handler = async (event) => {
       headers,
       body: JSON.stringify({
         error: error.message,
-        details: error.cause || error.stack
-      })
+        details: error.cause || error.stack,
+      }),
     };
   }
 };

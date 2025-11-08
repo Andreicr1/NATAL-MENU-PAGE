@@ -1,6 +1,4 @@
-import React from "react";
-import { ArrowLeft } from "lucide-react";
-import { ScrollArea } from "./ui/scroll-area";
+import { ArrowLeft } from 'lucide-react';
 
 interface StoryPageProps {
   categoryName: string;
@@ -9,11 +7,11 @@ interface StoryPageProps {
   onBackToLanding: () => void;
 }
 
-export function StoryPage({ 
-  categoryName, 
-  fullStory, 
-  onBack, 
-  onBackToLanding 
+export function StoryPage({
+  categoryName,
+  fullStory,
+  onBack,
+  onBackToLanding,
 }: StoryPageProps) {
   return (
     <div className="bg-[#fbf7e8] min-h-screen w-full">
@@ -26,7 +24,7 @@ export function StoryPage({
         >
           <ArrowLeft className="w-[24px] h-[24px]" />
         </button>
-        
+
         <p className="font-['Libre_Baskerville',_sans-serif] italic text-[#fbf7e8] text-[20px] tracking-[0.36px]">
           Menu Especial de Natal 2025
         </p>
@@ -44,7 +42,7 @@ export function StoryPage({
             Voltar
           </span>
         </button>
-        
+
         {/* Category Title */}
         <div className="mb-[24px]">
           <h1 className="font-['Libre_Baskerville',_sans-serif] text-[rgb(92,1,8)] text-[25px] leading-[30px] mb-[12px]">
@@ -55,13 +53,13 @@ export function StoryPage({
 
         {/* Story Content Box */}
         <div className="border border-[#d4af37] rounded-[14px] overflow-hidden">
-          <ScrollArea className="h-[calc(100vh-300px)] min-h-[400px]">
+          <div className="h-[calc(100vh-300px)] min-h-[400px] max-h-[600px] overflow-y-auto">
             <div className="p-[18px]">
               <div className="font-['Libre_Baskerville',_sans-serif] text-[#5c0108] text-[16.5px] leading-[30px] whitespace-pre-line">
                 {fullStory}
               </div>
             </div>
-          </ScrollArea>
+          </div>
         </div>
       </main>
     </div>

@@ -273,6 +273,9 @@ Resources:
     Properties:
       CodeUri: lambda/payments/
       Handler: webhook.handler
+      Environment:
+        Variables:
+          SEND_CONFIRMATION_FUNCTION: !GetAtt SendConfirmationFunction.Arn
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref OrdersTable
@@ -281,6 +284,10 @@ Resources:
             Action:
               - secretsmanager:GetSecretValue
             Resource: arn:aws:secretsmanager:us-east-1:683373797860:secret:natal-menu/mercadopago-*
+          - Effect: Allow
+            Action:
+              - lambda:InvokeFunction
+            Resource: !GetAtt SendConfirmationFunction.Arn
       Events:
         Webhook:
           Type: HttpApi
@@ -341,6 +348,34 @@ Resources:
             ApiId: !Ref ApiGateway
             Path: /analytics/dashboard
             Method: get
+
+  # ==========================================
+  # NOTIFICATIONS - Email & WhatsApp
+  # ==========================================
+  SendConfirmationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/notifications/
+      Handler: send-confirmation.handler
+      Timeout: 30  # Increased for external API calls
+      MemorySize: 512
+      Environment:
+        Variables:
+          SES_FROM_EMAIL: noreply@sweetbarchocolates.com.br
+          SES_REPLY_TO_EMAIL: contato@sweetbarchocolates.com.br
+          BCC_EMAIL: contato@sweetbarchocolates.com.br
+          # Twilio/Evolution configurados via Secrets Manager (configure manualmente após deploy)
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrdersTable
+        - SESCrudPolicy:
+            IdentityName: sweetbarchocolates.com.br
+        - Statement:
+          - Effect: Allow
+            Action:
+              - ses:SendEmail
+              - ses:SendRawEmail
+            Resource: '*'
 
 Outputs:
   ApiUrl:

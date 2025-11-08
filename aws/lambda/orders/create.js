@@ -18,27 +18,29 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { items, customerEmail, customerName, shippingAddress, customerPhone, shippingCost } = JSON.parse(event.body);
+    const { items, customerEmail, customerName, shippingAddress, customerPhone, shippingCost, transactionId, externalReference } = JSON.parse(event.body);
 
-    const orderId = `order-${randomUUID()}`;
     const createdAt = Date.now();
+    const orderNumber = `SB${Date.now().toString().slice(-8)}`; // SB + 8 dígitos
+    const orderId = `order-${randomUUID()}`; // UUID completo para sistema
 
     const subtotal = items.reduce((sum, item) => sum + (item.priceValue * item.quantity), 0);
     const total = subtotal + (shippingCost || 0);
 
     const order = {
       orderId,
+      orderNumber, // Número amigável para cliente
       customerEmail,
       customerName,
       customerPhone: customerPhone || null,
       shippingAddress: {
         street: shippingAddress?.street || '',
+        number: shippingAddress?.number || '',
         complement: shippingAddress?.complement || '',
         neighborhood: shippingAddress?.neighborhood || '',
         city: shippingAddress?.city || '',
         state: shippingAddress?.state || '',
-        zipCode: shippingAddress?.zipCode || '',
-        ...shippingAddress
+        zipCode: shippingAddress?.zipCode || ''
       },
       items: items.map(item => ({
         id: item.id,
@@ -52,6 +54,8 @@ exports.handler = async (event) => {
       status: 'pending',
       paymentStatus: 'pending',
       paymentMethod: null,
+      transactionId: transactionId || null, // ID da transação do Mercado Pago
+      externalReference: externalReference || orderId, // Referência externa
       createdAt,
       updatedAt: createdAt
     };

@@ -14,16 +14,17 @@ interface MercadoPagoCheckoutProps {
     quantity: number;
   }>;
   shippingCost: number;
+  initialCEP?: string;
   onSuccess: () => void;
 }
 
 export function MercadoPagoCheckout({
   cartItems,
   shippingCost,
+  initialCEP = '',
   onSuccess,
 }: MercadoPagoCheckoutProps) {
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState(1);
   const [customerData, setCustomerData] = useState({
     name: '',
     email: '',
@@ -34,7 +35,7 @@ export function MercadoPagoCheckout({
     neighborhood: '',
     city: '',
     state: '',
-    zipCode: '',
+    zipCode: initialCEP.replace(/\D/g, ''), // Pré-preencher com CEP do carrinho
   });
   const [loadingCEP, setLoadingCEP] = useState(false);
 
@@ -50,7 +51,7 @@ export function MercadoPagoCheckout({
       const result = await consultarCEP(cep);
 
       if (result) {
-        setCustomerData(prev => ({
+        setCustomerData((prev: typeof customerData) => ({
           ...prev,
           street: result.logradouro,
           neighborhood: result.bairro,
@@ -98,7 +99,8 @@ export function MercadoPagoCheckout({
         customerName: customerData.name,
         customerPhone: customerData.phone,
         shippingAddress: {
-          street: `${customerData.street}, ${customerData.number}`,
+          street: customerData.street,
+          number: customerData.number,
           complement: customerData.complement,
           neighborhood: customerData.neighborhood,
           city: customerData.city,
@@ -127,6 +129,7 @@ export function MercadoPagoCheckout({
           unit_price: Number(item.priceValue) || 0.01, // Garantir número válido
           currency_id: 'BRL',
         })),
+        shipping_cost: shippingCost, // Adicionar frete para ser incluído no total
         payer: {
           name: customerData.name,
           email: customerData.email,
@@ -155,7 +158,10 @@ export function MercadoPagoCheckout({
 
       // 4. Redirecionar para Mercado Pago Checkout Pro
       toast.success('Redirecionando para o pagamento...');
-      window.location.href = response.initPoint;
+
+      // Forçar abertura no navegador (não no app MP)
+      const checkoutUrl = response.initPoint + '&platform=web&source=sweet-bar';
+      window.location.href = checkoutUrl;
     } catch (error: any) {
       console.error('Erro no checkout:', error);
       toast.error(
@@ -167,61 +173,49 @@ export function MercadoPagoCheckout({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {step === 1 && (
-        <div className="space-y-3">
-          <Input
-            placeholder="Nome completo"
-            value={customerData.name}
-            onChange={e =>
-              setCustomerData({ ...customerData, name: e.target.value })
-            }
-            required
-            className="border-gray-300"
-            disabled={loading}
-          />
+      <div className="space-y-3">
+        {/* Informações Pessoais */}
+        <Input
+          placeholder="Nome completo"
+          value={customerData.name}
+          onChange={e =>
+            setCustomerData({ ...customerData, name: e.target.value })
+          }
+          required
+          className="border-gray-300"
+          disabled={loading}
+        />
 
-          <Input
-            type="email"
-            placeholder="Email"
-            value={customerData.email}
-            onChange={e =>
-              setCustomerData({ ...customerData, email: e.target.value })
-            }
-            required
-            className="border-gray-300"
-            disabled={loading}
-          />
+        <Input
+          type="email"
+          placeholder="Email"
+          value={customerData.email}
+          onChange={e =>
+            setCustomerData({ ...customerData, email: e.target.value })
+          }
+          required
+          className="border-gray-300"
+          disabled={loading}
+        />
 
-          <Input
-            type="tel"
-            placeholder="Telefone"
-            value={customerData.phone}
-            onChange={e =>
-              setCustomerData({
-                ...customerData,
-                phone: e.target.value.replace(/\D/g, ''),
-              })
-            }
-            required
-            pattern="[0-9]{10,11}"
-            maxLength={11}
-            className="border-gray-300"
-            disabled={loading}
-          />
+        <Input
+          type="tel"
+          placeholder="Telefone"
+          value={customerData.phone}
+          onChange={e =>
+            setCustomerData({
+              ...customerData,
+              phone: e.target.value.replace(/\D/g, ''),
+            })
+          }
+          required
+          pattern="[0-9]{10,11}"
+          maxLength={11}
+          className="border-gray-300"
+          disabled={loading}
+        />
 
-          <Button
-            type="button"
-            onClick={() => setStep(2)}
-            className="w-full bg-[#5c0108] hover:bg-[#7c1c3d] text-white"
-            disabled={loading}
-          >
-            Continuar
-          </Button>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="space-y-3">
+        {/* Endereço */}
           <div>
             <Input
               placeholder="CEP (ex: 88010-001)"
@@ -234,12 +228,12 @@ export function MercadoPagoCheckout({
               }
               onBlur={() => {
                 handleCEPBlur();
-                // Resetar zoom no mobile
-                if (window.visualViewport) {
-                  setTimeout(() => {
-                    window.scrollTo(0, 0);
-                    document.body.style.zoom = '1';
-                  }, 100);
+                // Resetar zoom no iOS Safari
+                if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+                  const viewport = document.querySelector('meta[name=viewport]');
+                  if (viewport) {
+                    viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0');
+                  }
                 }
               }}
               required
@@ -327,33 +321,21 @@ export function MercadoPagoCheckout({
             />
           </div>
 
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              onClick={() => setStep(1)}
-              variant="outline"
-              className="flex-1"
-              disabled={loading}
-            >
-              Voltar
-            </Button>
-            <Button
-              type="submit"
-              disabled={loading}
-              className="flex-1 bg-[#5c0108] hover:bg-[#7c1c3d] text-white"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Processando...
-                </>
-              ) : (
-                'Finalizar'
-              )}
-            </Button>
-          </div>
-        </div>
-      )}
+        <Button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-[#5c0108] hover:bg-[#7c1c3d] text-white"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Processando...
+            </>
+          ) : (
+            'Finalizar'
+          )}
+        </Button>
+      </div>
     </form>
   );
 }

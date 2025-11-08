@@ -16,6 +16,7 @@ interface Product {
   price: string;
   priceValue: number;
   image: string;
+  images?: string[];
   featured?: boolean;
   weight: string;
   ingredients: string[];
@@ -46,17 +47,24 @@ async function fetchWithRetry(url: string, options: RequestInit, retries = 2): P
 // Fetch products for a specific category
 export async function fetchProducts(categoryId: string): Promise<Product[]> {
   try {
-    const response = await fetchWithRetry(`${API_BASE}/products/${categoryId}`, {
-      headers: USE_AWS ? {} : {
+    // Adiciona timestamp para evitar cache
+    const timestamp = Date.now();
+    const url = `${API_BASE}/products/${categoryId}${USE_AWS ? `?t=${timestamp}` : ''}`;
+
+    const response = await fetchWithRetry(url, {
+      headers: USE_AWS ? {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+      } : {
         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       },
     });
-    
+
     if (!response.ok) {
       console.error('Failed to fetch products:', await response.text());
       return [];
     }
-    
+
     const data = await response.json();
     return Array.isArray(data) ? data : (data.products || []);
   } catch (error) {
@@ -78,12 +86,12 @@ export async function updateProducts(categoryId: string, products: Product[]): P
       },
       body: JSON.stringify({ products }),
     });
-    
+
     if (!response.ok) {
       console.error('Failed to update products:', await response.text());
       return false;
     }
-    
+
     return true;
   } catch (error) {
     console.error('Error updating products:', error);
@@ -94,23 +102,45 @@ export async function updateProducts(categoryId: string, products: Product[]): P
 // Update a single product
 export async function updateProduct(categoryId: string, productId: string, updates: Partial<Product>): Promise<Product | null> {
   try {
-    const endpoint = USE_AWS ? `${API_BASE}/products/${productId}` : `${API_BASE}/product/${categoryId}/${productId}`;
-    const response = await fetch(endpoint, {
+    // Para AWS, usar POST /products com o ID existente (create.js faz upsert)
+    if (USE_AWS) {
+      const fullProduct = {
+        ...updates,
+        id: productId,
+        categoryId: categoryId
+      };
+
+      const response = await fetch(`${API_BASE}/products`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(fullProduct),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to update product:', await response.text());
+        return null;
+      }
+
+      return await response.json();
+    }
+
+    // Para Supabase, usar PUT
+    const response = await fetch(`${API_BASE}/product/${categoryId}/${productId}`, {
       method: 'PUT',
-      headers: USE_AWS ? {
-        'Content-Type': 'application/json',
-      } : {
+      headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       },
       body: JSON.stringify(updates),
     });
-    
+
     if (!response.ok) {
       console.error('Failed to update product:', await response.text());
       return null;
     }
-    
+
     const data = await response.json();
     return data.product;
   } catch (error) {
@@ -129,12 +159,12 @@ export async function deleteProduct(categoryId: string, productId: string): Prom
         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       },
     });
-    
+
     if (!response.ok) {
       console.error('Failed to delete product:', await response.text());
       return false;
     }
-    
+
     return true;
   } catch (error) {
     console.error('Error deleting product:', error);
@@ -170,12 +200,12 @@ export async function initializeProducts(categories: Array<{ id: string; name: s
         },
         body: JSON.stringify({ categories }),
       });
-      
+
       if (!response.ok) {
         console.error('Failed to initialize products:', await response.text());
         return false;
       }
-      
+
       const data = await response.json();
       console.log('Products initialized:', data.message);
       return true;
@@ -196,30 +226,30 @@ export async function uploadProductImage(file: File): Promise<{ success: boolean
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fileName: file.name, fileType: file.type }),
       });
-      
+
       if (!presignedResponse.ok) {
         return { success: false, error: 'Failed to get presigned URL' };
       }
-      
+
       const { uploadUrl, fileUrl } = await presignedResponse.json();
-      
+
       // Upload to S3
       const uploadResponse = await fetch(uploadUrl, {
         method: 'PUT',
         body: file,
         headers: { 'Content-Type': file.type },
       });
-      
+
       if (!uploadResponse.ok) {
         return { success: false, error: 'Failed to upload to S3' };
       }
-      
+
       return { success: true, imageUrl: fileUrl };
     } else {
       // Supabase: Direct upload
       const formData = new FormData();
       formData.append('file', file);
-      
+
       const response = await fetch(`${API_BASE}/upload-image`, {
         method: 'POST',
         headers: {
@@ -227,13 +257,13 @@ export async function uploadProductImage(file: File): Promise<{ success: boolean
         },
         body: formData,
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Failed to upload image:', errorText);
         return { success: false, error: errorText };
       }
-      
+
       const data = await response.json();
       return { success: true, imageUrl: data.imageUrl };
     }

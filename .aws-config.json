@@ -1,0 +1,52 @@
+{
+  "project": "Sweet Bar - Menu de Natal",
+  "region": "us-east-1",
+  "account_id": "683373797860",
+
+  "buckets": {
+    "app": {
+      "name": "natal-menu-683373797860",
+      "description": "Build da aplicação React (frontend principal)",
+      "content": "dist/"
+    },
+    "admin": {
+      "name": "admin-sweetbar-683373797860",
+      "description": "Painel administrativo standalone",
+      "content": "admin.html"
+    },
+    "images": {
+      "name": "natal-menu-products-images",
+      "description": "Imagens dos produtos",
+      "path": "products/"
+    }
+  },
+
+  "cloudfront": {
+    "app": {
+      "id": "E3VP7VX4XVPPIO",
+      "domain": "d3c3no9shu6bly.cloudfront.net",
+      "alias": "menunatal.sweetbarchocolates.com.br",
+      "origin": "natal-menu-683373797860",
+      "default_root": "index.html"
+    },
+    "admin": {
+      "id": "EOK8HGF3GINRD",
+      "domain": "d30ejg446hfliv.cloudfront.net",
+      "alias": "admin.sweetbarchocolates.com.br",
+      "origin": "admin-sweetbar-683373797860",
+      "default_root": "admin.html"
+    }
+  },
+
+  "urls": {
+    "app_production": "https://menunatal.sweetbarchocolates.com.br",
+    "app_cloudfront": "https://d3c3no9shu6bly.cloudfront.net",
+    "admin_production": "https://admin.sweetbarchocolates.com.br",
+    "admin_cloudfront": "https://d30ejg446hfliv.cloudfront.net",
+    "api": "https://963pa03698.execute-api.us-east-1.amazonaws.com"
+  },
+
+  "credentials": {
+    "admin_password": "sweetbar2025"
+  }
+}

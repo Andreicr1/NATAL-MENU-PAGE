@@ -1,131 +1,172 @@
-# 🍫 Sweet Bar - Menu de Natal 2025
+# 🎄 Sweet Bar - Menu de Natal 2025
 
-Aplicação web de menu digital com sistema de pedidos integrado ao Mercado Pago e backend AWS.
+E-commerce de chocolates artesanais premium com sistema completo de checkout e pagamento via Mercado Pago.
 
-## 🚀 Links Rápidos
+---
 
-- **Site**: https://d3c3no9shu6bly.cloudfront.net
-- **Admin**: https://d3c3no9shu6bly.cloudfront.net/admin.html
-- **API**: https://963pa03698.execute-api.us-east-1.amazonaws.com
+## 🚀 Deploy Rápido
 
-## 📋 Funcionalidades
+```bash
+# Aplicação principal
+npm run deploy:app
 
-- ✅ Menu digital responsivo
-- ✅ Carrinho persistente (localStorage)
-- ✅ Produtos em destaque na home
-- ✅ Busca de produtos por categoria
-- ✅ Painel administrativo para gerenciar produtos
-- ✅ Upload de imagens com compressão automática
-- ✅ Integração com Mercado Pago
-- ✅ Backend AWS (Lambda + DynamoDB + S3)
+# Painel administrativo
+npm run deploy:admin
 
-## 🛠️ Tecnologias
+# Deploy completo (ambos)
+npm run deploy:all
+```
 
-- **Frontend**: React 18 + TypeScript + Vite
-- **UI**: Radix UI + Tailwind CSS
-- **Backend**: AWS Lambda (Node.js)
-- **Database**: DynamoDB
-- **Storage**: S3 + CloudFront
-- **Pagamentos**: Mercado Pago
+## 🔧 Correção de Upload de Imagens
 
-## 📦 Instalação
+Se houver erro ao fazer upload de imagens no painel admin:
+
+```powershell
+# 1. Corrigir configuração do bucket S3
+cd aws
+.\fix-s3-bucket.ps1
+
+# 2. Re-deployar admin
+cd ..
+npm run deploy:admin
+```
+
+Veja [FIX_UPLOAD_IMAGES.md](FIX_UPLOAD_IMAGES.md) para detalhes.
+
+---
+
+## 🌐 URLs de Produção
+
+- **Loja:** https://menunatal.sweetbarchocolates.com.br
+- **Admin:** https://admin.sweetbarchocolates.com.br
+- **Senha Admin:** `sweetbar2025`
+
+---
+
+## 📦 Infraestrutura AWS
+
+### S3 Buckets:
+| Sistema | Bucket | Conteúdo |
+|---------|--------|----------|
+| App | `natal-menu-683373797860` | Build React |
+| Admin | `admin-sweetbar-683373797860` | admin.html |
+| Imagens | `natal-menu-products-images` | Fotos |
+
+### CloudFront Distributions:
+| Sistema | ID | URL |
+|---------|-----|-----|
+| App | `E3VP7VX4XVPPIO` | menunatal.sweetbarchocolates.com.br |
+| Admin | `EOK8HGF3GINRD` | admin.sweetbarchocolates.com.br |
+
+---
+
+## 🛠️ Desenvolvimento
 
 ```bash
 # Instalar dependências
 npm install
 
-# Configurar variáveis de ambiente
-cp .env.example .env.local
-# Editar .env.local com suas credenciais
-
-# Desenvolvimento
+# Executar em dev
 npm run dev
 
-# Build
+# Build para produção
 npm run build
 ```
 
-## 🚢 Deploy
+---
 
-```bash
-# Deploy automático
-.\deploy-frontend.bat
+## 📚 Documentação Completa
 
-# Ou manual
-npm run build
-aws s3 sync dist/ s3://natal-menu-683373797860/
-aws cloudfront create-invalidation --distribution-id E3VP7VX4XVPPIO --paths "/*"
+- **[QUICK_DEPLOY.txt](QUICK_DEPLOY.txt)** - Referência visual rápida
+- **[DEPLOY_GUIDE.md](DEPLOY_GUIDE.md)** - Guia completo de deploy
+- **[AWS_CONFIG.md](AWS_CONFIG.md)** - Configuração detalhada AWS
+- **[NOTIFICACOES_IMPLEMENTACAO_COMPLETA.md](NOTIFICACOES_IMPLEMENTACAO_COMPLETA.md)** - Sistema de notificações
+
+---
+
+## ⚡ Funcionalidades
+
+- ✅ Carrossel de imagens (até 10 por produto)
+- ✅ Carrinho de compras com persistência
+- ✅ Cálculo de frete por CEP
+- ✅ Checkout integrado com Mercado Pago
+- ✅ Notificações por email e WhatsApp
+- ✅ Painel admin responsivo
+- ✅ Sistema de pedidos e analytics
+- ✅ Totalmente responsivo (mobile-first)
+
+---
+
+## 🔐 Credenciais
+
+### Admin:
+- **URL:** https://admin.sweetbarchocolates.com.br
+- **Senha:** `sweetbar2025`
+
+### Mercado Pago:
+- **Access Token:** Configurado via AWS Secrets Manager
+- **Webhook:** Configurado via Lambda
+
+---
+
+## 📱 Tech Stack
+
+**Frontend:**
+- React 18 + TypeScript
+- Vite
+- TailwindCSS
+- Shadcn/ui
+- Lucide Icons
+
+**Backend:**
+- AWS Lambda (Node.js)
+- DynamoDB
+- API Gateway
+- S3 + CloudFront
+- AWS SES
+- Mercado Pago API
+
+**Deploy:**
+- AWS SAM
+- AWS CLI
+- PowerShell Scripts
+
+---
+
+## 🎯 Estrutura do Projeto
+
+```
+D:\Natal Menu Page\
+├── src/                      # Código React
+│   ├── components/          # Componentes React
+│   ├── utils/              # Utilidades e APIs
+│   └── data/               # Dados estáticos
+├── aws/                     # Backend AWS
+│   ├── lambda/             # Funções Lambda
+│   └── template.yaml       # SAM template
+├── admin.html              # Painel admin standalone
+├── deploy-*.ps1            # Scripts de deploy
+└── AWS_CONFIG.md           # Documentação AWS
+
 ```
 
-Ver [DEPLOY.md](./DEPLOY.md) para instruções completas.
+---
 
-## 🔐 Admin
+## ⚠️ Importante
 
-Acesse `/admin.html` e use a senha configurada em `VITE_ADMIN_PASSWORD`.
+**NÃO confundir os buckets!**
+- `admin.html` → `admin-sweetbar-683373797860` ✅
+- Build React → `natal-menu-683373797860` ✅
+- Imagens → `natal-menu-products-images` ✅
 
-Funcionalidades:
-- Adicionar/editar/excluir produtos
-- Upload de imagens
-- Marcar produtos em destaque
-- Gerenciar categorias
+Use sempre os scripts de deploy (`npm run deploy:*`) para evitar erros.
 
-## 📊 Monitoramento
+**Troubleshooting:**
+- Upload de imagens falhando? → Execute `aws\fix-s3-bucket.ps1`
+- Admin não carrega? → Verifique se deployou no bucket correto
+- API não responde? → Verifique logs: `aws logs tail /aws/lambda/[FUNCTION_NAME] --follow`
 
-```bash
-# Configurar alarmes
-.\aws\setup-monitoring.bat
+---
 
-# Ver logs
-aws logs tail /aws/lambda/natal-menu-backend-v2-GetProductsFunction --follow
-
-# Dashboard
-https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#dashboards:name=natal-menu-dashboard
-```
-
-## 💾 Backup
-
-```bash
-# Backup manual
-.\aws\backup-dynamodb.bat
-
-# Configurar backup automático (diário às 3h)
-schtasks /create /tn "DynamoDB Backup" /tr "D:\Natal Menu Page\aws\backup-dynamodb.bat" /sc daily /st 03:00
-```
-
-## 🆘 Troubleshooting
-
-Ver [DISASTER_RECOVERY.md](./DISASTER_RECOVERY.md) para plano completo.
-
-**Problemas comuns:**
-
-- **Site não atualiza**: Limpar cache (Ctrl+Shift+R) e aguardar invalidação CloudFront
-- **Imagens não aparecem**: Verificar bucket `natal-menu-products-images`
-- **API não responde**: Verificar logs da Lambda no CloudWatch
-
-## 📁 Estrutura
-
-```
-├── src/
-│   ├── components/     # Componentes React
-│   ├── utils/          # Utilitários e API
-│   └── App.tsx         # Componente principal
-├── aws/
-│   ├── lambda/         # Funções Lambda
-│   └── *.bat           # Scripts de deploy/backup
-├── admin.html          # Painel administrativo
-└── DEPLOY.md           # Guia de deploy
-```
-
-## 🧪 Testes
-
-```bash
-npm test
-```
-
-## 📝 Licença
-
-Propriedade de Sweet Bar Chocolates.
-
-## 🤝 Suporte
-
-Para suporte, entre em contato através do Instagram: @sweetbarchocolates
+**Desenvolvido por:** Sweet Bar Team
+**Última atualização:** 07/11/2025

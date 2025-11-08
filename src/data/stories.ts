@@ -6,8 +6,9 @@ export interface CategoryStory {
 
 export const categoryStories: Record<string, CategoryStory> = {
   advent: {
-    id: "advent",
-    preview: "O Calendário do Advento Sweet Bar traz 25 figuras exclusivas feitas especialmente para a marca, em chocolate belga branco e ao leite.\n\nOrigem: a espera pelo Natal...",
+    id: 'advent',
+    preview:
+      'O Calendário do Advento Sweet Bar traz 25 figuras exclusivas feitas especialmente para a marca, em chocolate belga branco e ao leite.Origem: a espera pelo Natal...',
     fullStory: `O Calendário do Advento Sweet Bar traz 25 figuras exclusivas feitas especialmente para a marca, em chocolate belga branco e ao leite.
 
 Origem: a espera pelo Natal
@@ -28,8 +29,9 @@ Assim, você se prepara com calma, presenteia quem ama no tempo certo e transfor
 O Calendário do Advento Sweet Bar é mais do que um presente: é uma experiência de 25 dias de descobertas, surpresas e encantos, que fazem reviver a magia e a alegria que sentíamos na infância.`,
   },
   panettone: {
-    id: "panettone",
-    preview: "O Panetone Sweet Bar é feito com fermento natural, em processo artesanal lento que leva até 72 horas, garantindo textura macia e sabor incomparável.\n\nDa Itália ao mundo...",
+    id: 'panettone',
+    preview:
+      'O Panetone Sweet Bar é feito com fermento natural, em processo artesanal lento que leva até 72 horas, garantindo textura macia e sabor incomparável.Da Itália ao mundo...',
     fullStory: `O Panetone Sweet Bar é feito com fermento natural, em processo artesanal lento que leva até 72 horas, garantindo textura macia e sabor incomparável.
 
 Da Itália ao mundo
@@ -44,67 +46,69 @@ O panetone representa generosidade, criatividade e o calor do Natal italiano.
 Nossa versão artesanal
 
 Na Sweet Bar, honramos essa tradição com receitas exclusivas:
-• Panetone de Chocolate Belga com gotas premium
-• Panetone de Frutas Cristalizadas na receita clássica
-• Panetone Vegano, inclusivo e delicioso
+• Panetone de Chocolate Belga recheado com Ganache de Chocolate
+• Panetone de Frutas Cristalizadas e nozes na receita clássica
+• Panetone de Pistache
 
 Cada panetone leva até 72 horas de fermentação natural, garantindo aquela textura aerada e sabor profundo que só o tempo pode criar.
 
 Presenteie com tradição e sofisticação neste Natal.`,
   },
   bars: {
-    id: "bars",
-    preview: "As Barras de Chocolate Sweet Bar são feitas com cacau premium selecionado, em receitas que valorizam a pureza do chocolate e ingredientes nobres.\n\nA arte do chocolate em barras...",
-    fullStory: `As Barras de Chocolate Sweet Bar são feitas com cacau premium selecionado, em receitas que valorizam a pureza do chocolate e ingredientes nobres.
+    id: 'bars',
+    preview:
+      'Uma barra especial feita com o autêntico chocolate belga, reconhecido mundialmente pela sua qualidade, textura perfeita e sabor equilibrado. Inspirada na magia e na tradição do Calendário do Advento, cada quadradinho representa um momento de doçura e celebração, trazendo o encanto natalino em cada pedaço...',
+    fullStory: `Disponível em quatro versões irresistíveis:
 
-A arte do chocolate em barras
+Ao Leite 33,6% - Clássica e cremosa, combina o equilíbrio perfeito entre o doce e o intenso do cacau. Ideal para quem aprecia sabor suave e aveludado.
 
-O chocolate em barra como conhecemos hoje surgiu em 1847, quando a empresa britânica Fry & Sons criou a primeira barra sólida de chocolate comestível, misturando manteiga de cacau, açúcar e chocolate em pó.
+Branco 32% - Suave e delicado, com notas de baunilha e textura extremamente cremosa. Uma experiência doce e envolvente.
 
-Antes disso, o chocolate era consumido apenas como bebida.
+Caramelo 30,4% - Um toque sofisticado de caramelo amanteigado harmonizado ao chocolate belga, resultando em um sabor rico e levemente salgado.
 
-Essa inovação transformou o chocolate em algo portátil, prático e democratizou seu consumo pelo mundo.
-
-Nossa seleção premium
-
-Trabalhamos com diferentes percentuais de cacau e combinações sofisticadas:
-• 70% Cacau - Para os amantes do chocolate intenso
-• Ao Leite com Avelãs - Equilíbrio perfeito entre doçura e crocância
-• Branco com Pistache - Sofisticação em cada pedaço
-• Ruby com Framboesa - O chocolate rosa natural mais exclusivo
-
-Cada barra é uma experiência sensorial única, perfeita para presentear ou saborear em momentos especiais.
-
-Chocolate de verdade, ingredientes nobres, sabor inesquecível.`,
+Amargo 70,5% - Intenso e equilibrado, com notas marcantes de cacau e final elegante, perfeito para os amantes de sabores mais profundos.`,
   },
   special: {
-    id: "special",
-    preview: "Os Doces Especiais Sweet Bar são criações exclusivas que combinam técnicas artesanais com ingredientes premium, pensadas para tornar cada presente único.\n\nPresentes que encantam...",
-    fullStory: `Os Doces Especiais Sweet Bar são criações exclusivas que combinam técnicas artesanais com ingredientes premium, pensadas para tornar cada presente único.
+    id: 'special',
+    preview:
+      'Criações artesanais da Sweet Bar com chocolate belga e ingredientes premium. Presentes que encantam: do clássico Salame de Chocolate aos Brigadeiros Natalinos, Morango do Amor, Estrelas e Barrinhas Gingerbread....',
+    fullStory: `Um toque de festa em cada mordida.
 
-Presentes que encantam
+Salame de Chocolate com Avelãs e Amêndoas Torradas (350 g)
 
-A tradição de presentear com doces no Natal tem raízes antigas.
-Na Europa medieval, frutas cristalizadas e confeitos de açúcar eram considerados artigos de luxo, reservados para ocasiões especiais e presentes a nobres.
+Um clássico europeu com toque artesanal Sweet Bar.
+Preparado com chocolate belga, avelãs e amêndoas torradas, oferece textura crocante e sabor marcante.
+Ideal para presentear ou acompanhar um café especial.
 
-Com o tempo, o chocolate se tornou o presente mais desejado, simbolizando afeto, celebração e momentos doces compartilhados.
+Morango do Amor
 
-Nossa coleção exclusiva
+Delicados e irresistíveis.
+Cada unidade é feita à mão, combinando textura crocante, cremosidade e frescor do morango com o brilho característico da Sweet Bar.
+Um charme nas festas natalinas.
 
-Criamos seleções especiais para o Natal:
-• Caixa Festiva Mix - Variedade de bombons, trufas e chocolates
-• Bombons Sortidos Premium - 16 bombons artesanais com recheios exclusivos
-• Mendiants Artesanais - Discos de chocolate decorados com frutas e nuts
+Star Chocolate ao Leite ou Branco (50 g)
 
-Cada caixa é embalada com requinte, transformando o presente em uma experiência visual e sensorial completa.
+Estrelas de chocolate belga puro ou recheado com Nutella/Caramelo.
+Com acabamento dourado e toque perolado, são puro encanto e sabor.
+Disponíveis em duas versões:
+Puro: sabor intenso do chocolate.
+Recheado: explosão cremosa que derrete na boca.
 
-Ideal para surpreender clientes, colaboradores, familiares e amigos especiais.
+Caixa com Brigadeiros Sweet Bar (12 unidades)
 
-Presenteie com exclusividade e sofisticação.`,
+O tradicional brigadeiro brasileiro em uma versão natalina exclusiva.
+Feitos com leite condensado cremoso, manteiga pura e cacau nobre, decorados à mão com confeitos festivos.
+Perfeitos para presentear ou adoçar a mesa de Natal.
+
+Barrinhas Gingerbread Man & Woman (6 unidades)
+
+Feitas com chocolate belga puro, inspiradas nos clássicos biscoitos de gengibre.
+Com brilho delicado e formato encantador, são ideais para presentear ou decorar as festas.`,
   },
   truffles: {
-    id: "truffles",
-    preview: "As Trufas Sweet Bar são feitas artesanalmente com chocolate belga premium, creme fresco e ingredientes selecionados, em receitas que equilibram textura e sabor.\\n\\nA origem das trufas...",
+    id: 'truffles',
+    preview:
+      'As Trufas Sweet Bar são feitas artesanalmente com chocolate belga premium, creme fresco e ingredientes selecionados, em receitas que equilibram textura e sabor.A origem das trufas...',
     fullStory: `As Trufas Sweet Bar são feitas artesanalmente com chocolate belga premium, creme fresco e ingredientes selecionados, em receitas que equilibram textura e sabor.
 
 A origem das trufas
@@ -115,72 +119,27 @@ O chef Auguste Escoffier (ou seu assistente, segundo algumas versões) derramou 
 Ao esfriar, a mistura ganhou textura aveludada e sabor intenso.
 Moldada em bolinhas e coberta com cacau em pó, ganhou o nome de \"trufa\" pela semelhança com o raro fungo francês.
 
-Desde então, a trufa se tornou sinônimo de sofisticação e prazer.
-
-Nossa seleção artesanal
-
-Oferecemos trufas premium em sabores únicos:
-• Trufas Tradicionais - Clássicas com cobertura de cacau
-• Trufas de Champagne - Com champagne e pó dourado comestível
-• Trufas Veganas Mix - Opções inclusivas igualmente deliciosas
-• Trufas de Café Especial - Com café premium e nibs de cacau
-
-Cada trufa é feita à mão, com atenção aos detalhes que fazem a diferença.
-
-Presenteie com elegância e sabor incomparável.`,
+Desde então, a trufa se tornou sinônimo de sofisticação e prazer.`,
   },
   giftboxes: {
-    id: "giftboxes",
-    preview: "As Caixas de Presente Sweet Bar são montadas artesanalmente com chocolates premium, trufas exclusivas e embalagens sofisticadas, criadas para impressionar e encantar.\\n\\nA arte de presentear...",
-    fullStory: `As Caixas de Presente Sweet Bar são montadas artesanalmente com chocolates premium, trufas exclusivas e embalagens sofisticadas, criadas para impressionar e encantar.
+    id: 'giftboxes',
+    preview:
+      'Uma experiência única em sabor e elegância, disponíveis nas cores creme e café...',
+    fullStory: `Uma experiência única em sabor e elegância.
 
-A arte de presentear com chocolates
+Cada caixa apresenta uma seleção artesanal de chocolates belgas ao leite (33,6%) e branco (32%), elaborados com ingredientes de altíssima qualidade. A textura cremosa, o brilho delicado e o sabor equilibrado transformam cada pedaço em um momento de puro prazer.
 
-A tradição de presentear com caixas de chocolate começou no século XIX, quando empresas europeias perceberam que embalagens bonitas tornavam o chocolate um presente ainda mais especial.
-
-A empresa britânica Cadbury foi pioneira em 1868, criando as primeiras caixas decoradas em formato de coração para o Dia dos Namorados.
-
-Desde então, caixas de chocolate se tornaram símbolo de afeto, celebração e sofisticação.
-
-Nossas coleções exclusivas
-
-Criamos caixas especiais para cada ocasião:
-• Caixa Elegance - Seleção premium de chocolates belgas e trufas
-• Caixa Corporativa Premium - Ideal para presentes executivos
-• Caixa Deluxe Natal - Edição especial com os melhores chocolates
-• Caixa Vegana Festiva - Opção inclusiva e deliciosa
-
-Cada caixa é montada com cuidado, usando embalagens premium com hot stamping dourado, laços elegantes e apresentação impecável.
-
-O presente perfeito para clientes, colaboradores, família e amigos.
-
-Presenteie com exclusividade e requinte.`,
+Mais do que chocolates, são gestos de carinho e sofisticação, ideais para presentear e celebrar ocasiões especiais.`,
   },
   cards: {
-    id: "cards",
-    preview: "Os Cartões de Natal Sweet Bar combinam papel especial, mensagens personalizadas e chocolates artesanais, criando um presente que emociona e surpreende.\\n\\nMais do que um cartão...",
-    fullStory: `Os Cartões de Natal Sweet Bar combinam papel especial, mensagens personalizadas e chocolates artesanais, criando um presente que emociona e surpreende.
+    id: 'cards',
+    preview:
+      'Um toque de encanto e nostalgia para acompanhar seus presentes...',
+    fullStory: `Ilustrações natalinas exclusivas de estilo vintage.
 
-Mais do que um cartão: um gesto de carinho
+Mensagem:
+“Natal é tempo de amor, magia e até beijos do Papai Noel!”
 
-Os cartões de Natal surgiram na Inglaterra vitoriana, em 1843, quando Sir Henry Cole encomendou o primeiro cartão comercial de Natal ao artista John Callcott Horsley.
-
-A ideia era facilitar a comunicação natalina, que antes exigia longas cartas manuscritas.
-
-O sucesso foi imediato: os cartões se espalharam pelo mundo, tornando-se tradição afetuosa de expressar votos de paz, alegria e amor.
-
-Nossa coleção especial
-
-Elevamos essa tradição com chocolates artesanais:
-• Cartão Premium com Chocolate - Com barra 70% cacau
-• Cartão Deluxe com Trufas - Acompanha 4 trufas belgas
-• Kit Cartões Personalizados - 5 cartões com chocolates variados
-• Cartão Corporativo Executivo - Para clientes e parceiros
-
-Cada cartão é impresso em papel especial com acabamento hot stamping dourado, acompanhado de chocolates exclusivos em embalagem sofisticada.
-
-Personalizamos suas mensagens para tornar cada presente único.
-
-Surpreenda com um gesto que une tradição, afeto e sabor inesquecível.`,
+“Que a luz do Natal renove sua fé no impossível e aqueça cada sonho para o novo ano.”`,
   },
 };

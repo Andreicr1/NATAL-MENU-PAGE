@@ -1,10 +1,12 @@
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
 const { DynamoDBDocumentClient, UpdateCommand } = require('@aws-sdk/lib-dynamodb');
 const { SecretsManagerClient, GetSecretValueCommand } = require('@aws-sdk/client-secrets-manager');
+const { LambdaClient, InvokeCommand } = require('@aws-sdk/client-lambda');
 
 const dynamoClient = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(dynamoClient);
 const secretsClient = new SecretsManagerClient({});
+const lambdaClient = new LambdaClient({});
 
 let cachedAccessToken = null;
 
@@ -21,10 +23,14 @@ async function getAccessToken() {
 }
 
 exports.handler = async (event) => {
-  console.log('Webhook received:', JSON.stringify(event, null, 2));
+  console.log('[WEBHOOK] ========== WEBHOOK RECEIVED ==========');
+  console.log('[WEBHOOK] Full event:', JSON.stringify(event, null, 2));
+  console.log('[WEBHOOK] Headers:', JSON.stringify(event.headers, null, 2));
+  console.log('[WEBHOOK] Query params:', JSON.stringify(event.queryStringParameters, null, 2));
 
   try {
-    const body = JSON.parse(event.body);
+    const body = event.body ? JSON.parse(event.body) : {};
+    console.log('[WEBHOOK] Parsed body:', JSON.stringify(body, null, 2));
     const { type, data, action, resource, topic } = body;
 
     console.log('Webhook type:', type);
@@ -60,7 +66,11 @@ exports.handler = async (event) => {
       }
 
       const paymentInfo = await paymentResponse.json();
-      console.log('Payment info:', JSON.stringify(paymentInfo, null, 2));
+      console.log('[WEBHOOK] ========== PAYMENT INFO ==========');
+      console.log('[WEBHOOK] Payment ID:', paymentId);
+      console.log('[WEBHOOK] Status:', paymentInfo.status);
+      console.log('[WEBHOOK] External Reference (orderId):', paymentInfo.external_reference);
+      console.log('[WEBHOOK] Full payment info:', JSON.stringify(paymentInfo, null, 2));
 
       const orderId = paymentInfo.external_reference;
       const status = paymentInfo.status;
@@ -80,6 +90,8 @@ exports.handler = async (event) => {
         paymentStatus: status,
         paymentStatusDetail: statusDetail,
         paymentId: paymentId,
+        transactionId: String(paymentId), // ID da transação do Mercado Pago
+        externalReference: orderId,
         updatedAt: Date.now()
       };
 
@@ -88,12 +100,19 @@ exports.handler = async (event) => {
         updateData.paymentApprovedAt = Date.now();
         updateData.paymentMethod = paymentInfo.payment_method_id;
         updateData.transactionAmount = paymentInfo.transaction_amount;
+        updateData.status = 'confirmed'; // Atualizar status do pedido
       }
 
-      // Atualizar pedido no DynamoDB
+      // Atualizar pedido no DynamoDB (preservando dados existentes)
       const updateExpression = 'SET ' + Object.keys(updateData)
-        .map(key => `${key} = :${key}`)
+        .map(key => `#${key} = :${key}`)
         .join(', ');
+
+      const expressionAttributeNames = Object.keys(updateData)
+        .reduce((acc, key) => {
+          acc[`#${key}`] = key;
+          return acc;
+        }, {});
 
       const expressionAttributeValues = Object.keys(updateData)
         .reduce((acc, key) => {
@@ -105,10 +124,24 @@ exports.handler = async (event) => {
         TableName: process.env.ORDERS_TABLE,
         Key: { orderId },
         UpdateExpression: updateExpression,
-        ExpressionAttributeValues: expressionAttributeValues
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues: expressionAttributeValues,
+        ReturnValues: 'ALL_NEW'
       }));
 
-      console.log(`Payment ${paymentId} status: ${status} (${statusDetail}) for order ${orderId}`);
+      console.log(`[WEBHOOK] ========== ORDER UPDATED ==========`);
+      console.log(`[WEBHOOK] Payment ${paymentId} status: ${status} (${statusDetail}) for order ${orderId}`);
+      console.log(`[WEBHOOK] Update data:`, JSON.stringify(updateData, null, 2));
+
+      // [ENTERPRISE] Trigger confirmation notifications if approved
+      if (status === 'approved') {
+        console.log('[WEBHOOK] ========== PAYMENT APPROVED ==========');
+        console.log('[WEBHOOK] Triggering confirmation notification...');
+        await triggerConfirmationNotification(orderId);
+        console.log('[WEBHOOK] Notification triggered successfully');
+      } else {
+        console.log(`[WEBHOOK] Payment not approved yet. Status: ${status}`);
+      }
     }
 
     return {
@@ -131,3 +164,34 @@ exports.handler = async (event) => {
     };
   }
 };
+
+/**
+ * Trigger confirmation notification Lambda (async)
+ * Enterprise pattern: Fire-and-forget with error handling
+ */
+async function triggerConfirmationNotification(orderId) {
+  try {
+    const functionName = process.env.SEND_CONFIRMATION_FUNCTION;
+
+    if (!functionName) {
+      console.warn('[WEBHOOK] SEND_CONFIRMATION_FUNCTION not configured, skipping notifications');
+      return;
+    }
+
+    console.log('[WEBHOOK] Triggering confirmation notification for order:', orderId);
+
+    const command = new InvokeCommand({
+      FunctionName: functionName,
+      InvocationType: 'Event', // Async invocation (fire-and-forget)
+      Payload: JSON.stringify({ orderId })
+    });
+
+    await lambdaClient.send(command);
+    console.log('[WEBHOOK] Notification triggered successfully');
+  } catch (error) {
+    // Log error but don't fail webhook
+    console.error('[WEBHOOK] Failed to trigger notification:', error.message);
+    console.error('[WEBHOOK] Error details:', error);
+    // Webhook continues successfully even if notification fails
+  }
+}

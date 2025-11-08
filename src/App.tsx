@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { AdminPanel } from './components/AdminPanel';
 import { CartSheet } from './components/CartSheet';
 import { CategoryPage } from './components/CategoryPage';
 import { ImageCarousel } from './components/ImageCarousel';
@@ -52,6 +51,7 @@ interface Product {
   ingredients: string[];
   tags: string[];
   deliveryOptions: string[];
+  categoryId?: string;
 }
 
 interface Category {
@@ -618,6 +618,9 @@ export default function App() {
   const [showProducts, setShowProducts] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [descriptionProduct, setDescriptionProduct] = useState<Product | null>(
+    null
+  );
   const [cart, setCart] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem('sweetbar-cart');
     return saved ? JSON.parse(saved) : [];
@@ -629,8 +632,6 @@ export default function App() {
   }, [cart]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [adminPassword, setAdminPassword] = useState('');
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [priceFilter, setPriceFilter] = useState<string>('all');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -644,7 +645,7 @@ export default function App() {
   // Load products from backend
   const loadProductsFromBackend = async (categoryId: string) => {
     const products = await fetchProducts(categoryId);
-    setBackendProducts(prev => ({
+    setBackendProducts((prev: Record<string, Product[]>) => ({
       ...prev,
       [categoryId]: products,
     }));
@@ -653,7 +654,8 @@ export default function App() {
   // Load ALL products on mount
   useEffect(() => {
     const loadAllProducts = async () => {
-      const promises = categories.map(cat => 
+      console.log('Carregando produtos do backend...');
+      const promises = categories.map(cat =>
         fetchProducts(cat.id).then(products => ({ id: cat.id, products }))
       );
       const results = await Promise.all(promises);
@@ -662,10 +664,23 @@ export default function App() {
         return acc;
       }, {} as Record<string, Product[]>);
       setBackendProducts(productsMap);
+      console.log('Produtos carregados:', productsMap);
     };
-    
+
+    // Carrega produtos na inicialização
     loadAllProducts();
     trackEvent('page_view', { page: 'home' });
+
+    // Recarrega produtos quando a página ganha foco (útil após adicionar produtos no admin)
+    const handleFocus = () => {
+      loadAllProducts();
+    };
+
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
   // Get products (from backend with fallback to static)
@@ -680,20 +695,27 @@ export default function App() {
   };
 
   // Analytics helper
-  const trackEvent = (eventName: string, data?: any) => {
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', eventName, data);
+  const trackEvent = (eventName: string, data?: Record<string, unknown>) => {
+    if (
+      typeof window !== 'undefined' &&
+      (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag
+    ) {
+      (window as unknown as { gtag: (...args: unknown[]) => void }).gtag(
+        'event',
+        eventName,
+        data
+      );
     }
     console.log('Event:', eventName, data);
   };
 
   const addToCart = (product: Product) => {
-    setCart(prevCart => {
+    setCart((prevCart: CartItem[]) => {
       const existingItem = prevCart.find(
-        item => item.product.id === product.id
+        (item: CartItem) => item.product.id === product.id
       );
       if (existingItem) {
-        return prevCart.map(item =>
+        return prevCart.map((item: CartItem) =>
           item.product.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
@@ -714,7 +736,9 @@ export default function App() {
   };
 
   const removeFromCart = (productId: string) => {
-    setCart(prevCart => prevCart.filter(item => item.product.id !== productId));
+    setCart((prevCart: CartItem[]) =>
+      prevCart.filter((item: CartItem) => item.product.id !== productId)
+    );
   };
 
   const updateQuantity = (productId: string, newQuantity: number) => {
@@ -722,8 +746,8 @@ export default function App() {
       removeFromCart(productId);
       return;
     }
-    setCart(prevCart =>
-      prevCart.map(item =>
+    setCart((prevCart: CartItem[]) =>
+      prevCart.map((item: CartItem) =>
         item.product.id === productId
           ? { ...item, quantity: newQuantity }
           : item
@@ -732,11 +756,15 @@ export default function App() {
   };
 
   const cartTotal = cart.reduce(
-    (total, item) => total + item.product.priceValue * item.quantity,
+    (total: number, item: CartItem) =>
+      total + item.product.priceValue * item.quantity,
     0
   );
 
-  const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
+  const cartItemCount = cart.reduce(
+    (total: number, item: CartItem) => total + item.quantity,
+    0
+  );
 
   // Filter and sort products
   const getFilteredProducts = () => {
@@ -906,14 +934,15 @@ export default function App() {
                   const password = prompt('Digite a senha de admin:');
                   if (password === import.meta.env.VITE_ADMIN_PASSWORD) {
                     setIsAdminAuthenticated(true);
-                    toast.success('Admin autenticado!');
+                    toast.success('Admin autenticado! Acesse: /admin.html');
+                    // Painel admin disponível em: https://d3c3no9shu6bly.cloudfront.net/admin.html
                   } else if (password) {
                     toast.error('Senha incorreta!');
                   }
                 }}
                 className="font-['Libre_Baskerville',_sans-serif] italic leading-[21.87px] relative shrink-0 text-[#fbf7e8] text-[20.829px] text-left text-nowrap tracking-[0.3645px] whitespace-pre px-[25px] py-[0px] cursor-pointer"
               >
-                Menu Especial de Natal 2025
+                Menu de Natal Sweet Bar
               </p>
             </div>
             {/* SVG carrinho removido */}
@@ -1045,15 +1074,46 @@ export default function App() {
                 <h3 className="font-['Libre_Baskerville',_sans-serif] font-bold text-[#5c0108] text-[22px] text-center w-full mb-4">
                   Entregas de Natal
                 </h3>
-                <p className="font-['Libre_Baskerville',_sans-serif] leading-[26px] text-[#5c0108] text-[16px] text-center w-full mb-4">
+                <p className="font-['Libre_Baskerville',_sans-serif] leading-[26px] text-[#5c0108] text-[16px] text-left w-full mb-4">
+                  Para garantir que todos recebam seus pedidos com
+                  tranquilidade, oferecemos duas modalidades de entrega:
+                </p>
+
+                <h3 className="font-['Libre_Baskerville',_sans-serif] font-bold text-[#5c0108] text-[18px] text-left w-full mt-6 mb-3">
+                  Entregas Programadas
+                </h3>
+                <p className="font-['Libre_Baskerville',_sans-serif] leading-[26px] text-[#5c0108] text-[16px] text-left w-full mb-3">
                   As entregas de Natal serão realizadas nos dias{' '}
-                  <strong>22, 23 e 24 de dezembro</strong>, no horário das{' '}
+                  <strong>22, 23 e 24 de dezembro</strong>, das{' '}
                   <strong>8h às 22h</strong>.
                 </p>
+                <p className="font-['Libre_Baskerville',_sans-serif] leading-[26px] text-[#5c0108] text-[16px] text-left w-full mb-4">
+                  Essa opção é ideal para quem já fez o pedido no site e deseja
+                  receber na véspera das festas, dentro do cronograma oficial de
+                  Natal.
+                </p>
+
+                <h3 className="font-['Libre_Baskerville',_sans-serif] font-bold text-[#5c0108] text-[18px] text-left w-full mt-6 mb-3">
+                  Entregas Rápidas
+                </h3>
+                <p className="font-['Libre_Baskerville',_sans-serif] leading-[26px] text-[#5c0108] text-[16px] text-left w-full mb-3">
+                  <strong>Precisa receber antes?</strong>
+                </p>
+                <p className="font-['Libre_Baskerville',_sans-serif] leading-[26px] text-[#5c0108] text-[16px] text-left w-full mb-3">
+                  Disponibilizamos também entregas com curto prazo, realizadas
+                  em <strong>1 a 3 dias úteis</strong>, incluindo finais de
+                  semana.
+                </p>
+                <p className="font-['Libre_Baskerville',_sans-serif] leading-[26px] text-[#5c0108] text-[16px] text-left w-full mb-4">
+                  Para agendar essa opção, é só entrar em contato pelo WhatsApp
+                  e nos avisar - nós cuidamos do resto.
+                </p>
+
+                <p className="font-['Libre_Baskerville',_sans-serif] leading-[26px] text-[#5c0108] text-[16px] text-center w-full mt-6">
+                  <strong>(48) 99196-0811</strong>
+                </p>
                 <p className="font-['Libre_Baskerville',_sans-serif] leading-[26px] text-[#5c0108] text-[16px] text-center w-full">
-                  Para combinar o dia da sua entrega, entre em contato pelo
-                  WhatsApp <strong>(48) 99196-0811</strong> (ou clique no ícone
-                  abaixo)
+                  (ou clique no ícone abaixo)
                 </p>
               </div>
             </div>
@@ -1062,7 +1122,7 @@ export default function App() {
             <div className="w-full mt-12 mb-8">
               <div className="flex justify-center items-center gap-8">
                 <a
-                  href="https://www.instagram.com/sweetbar.br"
+                  href="https://www.instagram.com/sweetbar.store?igsh=MWd6aTcyeXlnd2Q1dw=="
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[rgb(212,175,55)] hover:text-[#d4af37] transition-colors duration-300"
@@ -1311,29 +1371,36 @@ export default function App() {
                             </div>
                           )}
 
-                          <p className="mb-4 italic line-clamp-2 text-description">
-                            {product.description}
-                          </p>
+                          <div className="flex flex-col gap-3 pt-4 border-t border-light-gold-custom">
+                            {/* Botão Descrição */}
+                            <button
+                              onClick={() => setDescriptionProduct(product)}
+                              className="w-full px-3 py-2 rounded-lg transition-all duration-300 hover:bg-[#d4af37] hover:bg-opacity-20 text-sm bg-transparent text-[#5c0108] font-medium border-2 border-[#d4af37]"
+                            >
+                              Descrição
+                            </button>
 
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-4 border-t border-light-gold-custom">
-                            <span className="text-burgundy text-clamp-price">
-                              {product.price}
-                            </span>
+                            {/* Preço e Botões */}
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                              <span className="text-burgundy text-clamp-price">
+                                {product.price}
+                              </span>
 
-                            <div className="flex gap-2 w-full sm:w-auto">
-                              <button
-                                onClick={() => setSelectedProduct(product)}
-                                className="flex-1 sm:flex-initial px-3 md:px-4 py-2 rounded-lg transition-all duration-300 hover:opacity-80 border btn-burgundy-outline"
-                              >
-                                Detalhes
-                              </button>
-                              <button
-                                onClick={() => addToCart(product)}
-                                className="flex-1 sm:flex-initial px-3 md:px-4 py-2 rounded-lg transition-all duration-300 hover:shadow-lg flex items-center justify-center gap-2 bg-dark-burgundy text-cream"
-                              >
-                                <Plus className="w-4 h-4" />
-                                Adicionar
-                              </button>
+                              <div className="flex gap-2 w-full sm:w-auto">
+                                <button
+                                  onClick={() => setSelectedProduct(product)}
+                                  className="flex-1 sm:flex-initial px-3 md:px-4 py-2 rounded-lg transition-all duration-300 hover:opacity-80 border btn-burgundy-outline"
+                                >
+                                  Detalhes
+                                </button>
+                                <button
+                                  onClick={() => addToCart(product)}
+                                  className="flex-1 sm:flex-initial px-3 md:px-4 py-2 rounded-lg transition-all duration-300 hover:shadow-lg flex items-center justify-center gap-2 bg-dark-burgundy text-cream"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                  Adicionar
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1356,6 +1423,41 @@ export default function App() {
             </div>
           </main>
         </div>
+
+        {/* Description Popup */}
+        <Dialog
+          open={!!descriptionProduct}
+          onOpenChange={() => setDescriptionProduct(null)}
+        >
+          <DialogContent
+            className="max-w-[95vw] sm:max-w-lg"
+            style={{ backgroundColor: 'var(--cream)' }}
+          >
+            {descriptionProduct && (
+              <>
+                <DialogHeader>
+                  <DialogTitle
+                    style={{
+                      color: 'var(--burgundy)',
+                      fontSize: 'clamp(1.125rem, 3vw, 1.5rem)',
+                    }}
+                  >
+                    {descriptionProduct.name}
+                  </DialogTitle>
+                  <DialogDescription className="sr-only">
+                    Descrição do produto
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="mt-4">
+                  <p className="text-gray-700 leading-relaxed">
+                    {descriptionProduct.description}
+                  </p>
+                </div>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Product Details Modal */}
         <Dialog
@@ -1482,17 +1584,6 @@ export default function App() {
         >
           Voltar para Início
         </button>
-      )}
-
-      {/* Admin Panel */}
-      {isAdminAuthenticated && currentCategory && (
-        <AdminPanel
-          isOpen={isAdminOpen}
-          onClose={() => setIsAdminOpen(false)}
-          categoryId={selectedCategory}
-          categoryName={currentCategory.name}
-          onProductsUpdated={() => loadProductsFromBackend(selectedCategory)}
-        />
       )}
 
       {/* Cart Sheet - Global */}

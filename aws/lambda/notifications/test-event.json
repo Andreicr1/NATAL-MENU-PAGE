@@ -1,0 +1,4 @@
+{
+  "orderId": "order-test-12345",
+  "comment": "Use este arquivo para testar localmente com: sam local invoke SendConfirmationFunction -e test-event.json"
+}

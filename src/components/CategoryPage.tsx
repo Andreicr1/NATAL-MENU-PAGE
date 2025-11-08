@@ -1,8 +1,14 @@
-import React, { useState } from "react";
-import { ShoppingCart, ChevronLeft, Home } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { ImageCarousel } from "./ImageCarousel";
+import { ChevronLeft, Home, ShoppingCart } from 'lucide-react';
+import React, { useState } from 'react';
+import { ImageCarousel } from './ImageCarousel';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from './ui/sheet';
 
 interface Product {
   id: string;
@@ -44,10 +50,13 @@ export function CategoryPage({
   onOpenCart,
   categories = [],
   currentCategoryId = '',
-  onCategoryChange
+  onCategoryChange,
 }: CategoryPageProps) {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-  const [selectedProductDescription, setSelectedProductDescription] = useState<{ name: string; description: string } | null>(null);
+  const [selectedProductDescription, setSelectedProductDescription] = useState<{
+    name: string;
+    description: string;
+  } | null>(null);
 
   return (
     <div className="bg-[#fbf7e8] min-h-screen w-full">
@@ -115,7 +124,7 @@ export function CategoryPage({
               </SheetHeader>
 
               <nav className="px-[24px] space-y-[8px]">
-                {categories.map((category) => (
+                {categories.map(category => (
                   <button
                     key={category.id}
                     onClick={() => {
@@ -126,15 +135,15 @@ export function CategoryPage({
                     }}
                     className={`w-full flex items-center gap-[12px] px-[17px] py-[15px] rounded-[10px] transition-all duration-300 ${
                       currentCategoryId === category.id
-                        ? "bg-[#fbf7e8] border border-[#d4af37]"
-                        : "border border-transparent"
+                        ? 'bg-[#fbf7e8] border border-[#d4af37]'
+                        : 'border border-transparent'
                     }`}
                   >
                     <span
                       className={`flex-1 text-left font-['Libre_Baskerville',_sans-serif] text-[16px] leading-[24px] ${
                         currentCategoryId === category.id
-                          ? "text-[#d4af37]"
-                          : "text-[#faf8f3]"
+                          ? 'text-[#d4af37]'
+                          : 'text-[#faf8f3]'
                       }`}
                     >
                       {category.name}
@@ -184,12 +193,16 @@ export function CategoryPage({
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-x-[16px] gap-y-[28px]">
-            {products.map((product) => (
+            {products.map(product => (
               <div key={product.id} className="flex flex-col">
                 {/* Product Image - 3:4 aspect ratio with carousel */}
                 <div className="w-full aspect-[3/4] rounded-[10px] overflow-hidden bg-[#f5f5f5] mb-[10px]">
                   <ImageCarousel
-                    images={product.images && product.images.length > 0 ? product.images : [product.image]}
+                    images={
+                      product.images && product.images.length > 0
+                        ? product.images
+                        : [product.image]
+                    }
                     alt={product.name}
                     autoPlay={true}
                   />
@@ -202,8 +215,13 @@ export function CategoryPage({
 
                 {/* Description Button */}
                 <button
-                  onClick={() => setSelectedProductDescription({ name: product.name, description: product.description })}
-                  className="font-['Libre_Baskerville',_sans-serif] text-[#5c0108] text-[13px] border border-[#5c0108] rounded-[6px] px-[8px] py-[4px] mb-[6px] hover:bg-[#5c0108] hover:text-[#fbf7e8] transition-all"
+                  onClick={() =>
+                    setSelectedProductDescription({
+                      name: product.name,
+                      description: product.description,
+                    })
+                  }
+                  className="font-['Libre_Baskerville',_sans-serif] bg-transparent text-[#5c0108] text-[13px] rounded-[6px] px-[8px] py-[4px] mb-[6px] hover:bg-[#d4af37] hover:bg-opacity-20 transition-all border-2 border-[#d4af37]"
                 >
                   descrição
                 </button>
@@ -216,7 +234,7 @@ export function CategoryPage({
                 {/* Add to Cart Button */}
                 <button
                   onClick={() => {
-                    console.log("Botão clicado! Produto:", product);
+                    console.log('Botão clicado! Produto:', product);
                     onAddToCart(product);
                   }}
                   className="flex items-center justify-center gap-[6px] bg-[#5c0108] text-[#fbf7e8] rounded-[8px] px-[10px] py-[10px] transition-all hover:bg-[#D4AF37] w-full min-h-[44px]"
@@ -234,7 +252,10 @@ export function CategoryPage({
       </main>
 
       {/* Description Dialog */}
-      <Dialog open={selectedProductDescription !== null} onOpenChange={() => setSelectedProductDescription(null)}>
+      <Dialog
+        open={selectedProductDescription !== null}
+        onOpenChange={() => setSelectedProductDescription(null)}
+      >
         <DialogContent className="bg-[#fbf7e8] border-2 border-[#d4af37] max-w-[440px]">
           <DialogHeader>
             <DialogTitle className="font-['Libre_Baskerville',_sans-serif] text-[#5c0108] text-[18px]">

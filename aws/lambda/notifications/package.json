@@ -1,0 +1,25 @@
+{
+  "name": "natal-menu-notifications",
+  "version": "1.0.0",
+  "description": "Order confirmation notifications via Email (SES) and WhatsApp",
+  "main": "send-confirmation.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "notifications",
+    "email",
+    "whatsapp",
+    "ses",
+    "twilio"
+  ],
+  "author": "Sweet Bar Chocolates",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.600.0",
+    "@aws-sdk/lib-dynamodb": "^3.600.0",
+    "@aws-sdk/client-ses": "^3.600.0",
+    "@aws-sdk/client-secrets-manager": "^3.600.0",
+    "@aws-sdk/client-lambda": "^3.600.0"
+  }
+}
