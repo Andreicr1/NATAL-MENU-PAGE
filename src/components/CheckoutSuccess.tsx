@@ -50,20 +50,44 @@ export function CheckoutSuccess() {
     // Verificar status imediatamente
     checkPaymentStatus();
 
-    // Verificar status a cada 5 segundos por até 2 minutos
+    // Polling agressivo: 2s nos primeiros 30s, depois 5s até 2 minutos
     let attempts = 0;
-    const maxAttempts = 24; // 24 * 5s = 2 minutos
+    const maxAttempts = 30; // Total de tentativas
+    let intervalTime = 2000; // Começar com 2 segundos
 
     const interval = setInterval(async () => {
       attempts++;
 
-      if (attempts >= maxAttempts || orderStatus?.paymentStatus === 'approved') {
+      // Se já foi aprovado, parar
+      if (orderStatus?.paymentStatus === 'approved') {
+        clearInterval(interval);
+        return;
+      }
+
+      // Após 15 tentativas (30s), reduzir frequência para 5s
+      if (attempts === 15) {
+        clearInterval(interval);
+        intervalTime = 5000;
+        // Criar novo intervalo mais lento
+        const slowInterval = setInterval(async () => {
+          attempts++;
+          if (attempts >= maxAttempts || orderStatus?.paymentStatus === 'approved') {
+            clearInterval(slowInterval);
+            return;
+          }
+          await checkPaymentStatus();
+        }, intervalTime);
+        return;
+      }
+
+      // Parar após maxAttempts
+      if (attempts >= maxAttempts) {
         clearInterval(interval);
         return;
       }
 
       await checkPaymentStatus();
-    }, 5000);
+    }, intervalTime);
 
     return () => clearInterval(interval);
   }, [orderId]);

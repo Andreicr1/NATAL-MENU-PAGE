@@ -18,7 +18,21 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { items, customerEmail, customerName, shippingAddress, customerPhone, shippingCost, transactionId, externalReference } = JSON.parse(event.body);
+    const requestBody = JSON.parse(event.body);
+    console.log('[CREATE_ORDER] Request body:', JSON.stringify(requestBody, null, 2));
+    
+    const { items, customerEmail, customerName, shippingAddress, customerPhone, shippingCost, transactionId, externalReference } = requestBody;
+
+    // Validação de dados obrigatórios
+    if (!items || items.length === 0) {
+      throw new Error('Items are required');
+    }
+    if (!customerEmail) {
+      throw new Error('Customer email is required');
+    }
+    if (!customerName) {
+      throw new Error('Customer name is required');
+    }
 
     const createdAt = Date.now();
     const orderNumber = `SB${Date.now().toString().slice(-8)}`; // SB + 8 dígitos
@@ -26,6 +40,8 @@ exports.handler = async (event) => {
 
     const subtotal = items.reduce((sum, item) => sum + (item.priceValue * item.quantity), 0);
     const total = subtotal + (shippingCost || 0);
+
+    console.log('[CREATE_ORDER] Creating order:', { orderId, orderNumber, customerEmail, customerName, total });
 
     const order = {
       orderId,
@@ -89,6 +105,14 @@ exports.handler = async (event) => {
     });
 
     await docClient.send(command);
+
+    console.log('[CREATE_ORDER] Order created successfully:', { 
+      orderId, 
+      orderNumber,
+      customerEmail: order.customerEmail,
+      itemsCount: order.items.length,
+      total: order.total
+    });
 
     return {
       statusCode: 201,
