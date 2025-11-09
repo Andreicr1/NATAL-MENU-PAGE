@@ -1104,13 +1104,9 @@ export default function App() {
                   em <strong>1 a 3 dias úteis</strong>, incluindo finais de
                   semana.
                 </p>
-                <p className="font-['Libre_Baskerville',_sans-serif] leading-[26px] text-[#5c0108] text-[16px] text-left w-full mb-4">
-                  Para agendar essa opção, é só entrar em contato pelo WhatsApp
-                  e nos avisar - nós cuidamos do resto.
-                </p>
 
                 <p className="font-['Libre_Baskerville',_sans-serif] leading-[26px] text-[#5c0108] text-[16px] text-center w-full mt-6">
-                  <strong>(48) 99196-0811</strong>
+                  <strong>Fale conosco no WhatsApp (48) 99196-0811</strong>
                 </p>
                 <p className="font-['Libre_Baskerville',_sans-serif] leading-[26px] text-[#5c0108] text-[16px] text-center w-full">
                   (ou clique no ícone abaixo)

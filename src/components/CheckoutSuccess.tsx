@@ -199,19 +199,7 @@ export function CheckoutSuccess() {
                   <div>
                     <p className="font-semibold text-[#5c0108]">Preparação e Envio</p>
                     <p className="text-sm text-gray-600">
-                      Seu pedido será preparado com cuidado e enviado em até 2 dias úteis.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {isPaymentApproved && (
-                <div className="flex gap-3 items-start">
-                  <Download className="w-5 h-5 text-[#d4af37] flex-shrink-0 mt-1" />
-                  <div>
-                    <p className="font-semibold text-[#5c0108]">Acompanhamento</p>
-                    <p className="text-sm text-gray-600">
-                      Em breve você receberá o código de rastreamento.
+                      Seu pedido será preparado com todo carinho.
                     </p>
                   </div>
                 </div>

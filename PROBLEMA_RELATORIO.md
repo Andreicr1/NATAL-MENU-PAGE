@@ -87,3 +87,4 @@ Vou verificar o endpoint diretamente e os logs da Lambda.
 
 
 
+
