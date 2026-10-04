@@ -119,3 +119,4 @@ Thumbs.db
 # Miscellaneous
 *.tgz
 *.tar.gz
+.env*

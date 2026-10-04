@@ -36,7 +36,7 @@ import {
 import { Toaster } from './components/ui/sonner';
 import { categoryStories } from './data/stories';
 import menuSvgPaths from './imports/svg-k56t5hodsm';
-import { fetchProducts } from './utils/api';
+import { fetchProducts, USE_SUPABASE_CATALOG } from './utils/api';
 
 interface Product {
   id: string;
@@ -683,8 +683,11 @@ export default function App() {
     };
   }, []);
 
-  // Get products (from backend with fallback to static)
+  // Do not substitute old static products for an empty or unavailable database.
   const getCurrentProducts = () => {
+    if (USE_SUPABASE_CATALOG) {
+      return backendProducts[selectedCategory] || [];
+    }
     if (
       backendProducts[selectedCategory] &&
       backendProducts[selectedCategory].length > 0
@@ -1190,7 +1193,7 @@ export default function App() {
                 <div className="max-w-7xl mx-auto relative z-10">
                   <div className="flex items-center justify-between gap-2">
                     {/* Menu Button - Mobile Only */}
-                    <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+                    <Sheet open={showProducts && isSidebarOpen} onOpenChange={setIsSidebarOpen}>
                       <SheetTrigger asChild>
                         <button
                           className="lg:hidden p-2 rounded-lg hover:bg-opacity-20 transition-all bg-gold-opacity"

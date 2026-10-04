@@ -1,13 +1,11 @@
-// API configuration - AWS backend
+// Supabase serves the public catalog; checkout continues to use the AWS backend.
 const AWS_API_URL = import.meta.env.VITE_AWS_API_URL;
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://mypdmnucmkigqshafrwx.supabase.co';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15cGRtbnVjbWtpZ3FzaGFmcnd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MTAxNzMsImV4cCI6MjA3NjM4NjE3M30.LTzyrfI4unf-KkhRktZyEQCPUoWphpWAo4U0kQ2Y5u8';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL?.replace(/\/+$/, '');
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+export const USE_SUPABASE_CATALOG = Boolean(import.meta.env.VITE_SUPABASE_URL || SUPABASE_ANON_KEY);
 
-// Use AWS API if configured, otherwise fallback to Supabase
-const API_BASE = AWS_API_URL || `${SUPABASE_URL}/functions/v1/make-server-c42493b2`;
+const API_BASE = AWS_API_URL;
 const USE_AWS = !!AWS_API_URL;
-
-console.log('API Configuration:', { API_BASE, USE_AWS });
 
 interface Product {
   id: string;
@@ -47,6 +45,25 @@ async function fetchWithRetry(url: string, options: RequestInit, retries = 2): P
 // Fetch products for a specific category
 export async function fetchProducts(categoryId: string): Promise<Product[]> {
   try {
+    if (USE_SUPABASE_CATALOG) {
+      if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        throw new Error('Configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY');
+      }
+      const query = new URLSearchParams({
+        select: 'id,name,description,price,priceValue:pricevalue,image,images,featured,weight,ingredients,tags,deliveryOptions:deliveryoptions',
+        categoryid: `eq.${categoryId}`,
+        order: 'created_at.asc,id.asc',
+      });
+      const response = await fetchWithRetry(`${SUPABASE_URL}/rest/v1/products?${query}`, {
+        headers: { apikey: SUPABASE_ANON_KEY },
+        cache: 'no-store',
+      });
+      if (!response.ok) {
+        throw new Error(`Supabase catalog request failed (${response.status})`);
+      }
+      return await response.json();
+    }
+    if (!USE_AWS) return [];
     // Adiciona timestamp para evitar cache
     const timestamp = Date.now();
     const url = `${API_BASE}/products/${categoryId}${USE_AWS ? `?t=${timestamp}` : ''}`;
@@ -75,6 +92,10 @@ export async function fetchProducts(categoryId: string): Promise<Product[]> {
 
 // Update products for a category
 export async function updateProducts(categoryId: string, products: Product[]): Promise<boolean> {
+  if (USE_SUPABASE_CATALOG || !USE_AWS) {
+    console.error('Catalog changes require an authorized Supabase backend');
+    return false;
+  }
   try {
     const response = await fetch(`${API_BASE}/products/${categoryId}`, {
       method: 'POST',
@@ -101,6 +122,10 @@ export async function updateProducts(categoryId: string, products: Product[]): P
 
 // Update a single product
 export async function updateProduct(categoryId: string, productId: string, updates: Partial<Product>): Promise<Product | null> {
+  if (USE_SUPABASE_CATALOG || !USE_AWS) {
+    console.error('Catalog changes require an authorized Supabase backend');
+    return null;
+  }
   try {
     // Para AWS, usar POST /products com o ID existente (create.js faz upsert)
     if (USE_AWS) {
@@ -151,6 +176,10 @@ export async function updateProduct(categoryId: string, productId: string, updat
 
 // Delete a product
 export async function deleteProduct(categoryId: string, productId: string): Promise<boolean> {
+  if (USE_SUPABASE_CATALOG || !USE_AWS) {
+    console.error('Catalog changes require an authorized Supabase backend');
+    return false;
+  }
   try {
     const endpoint = USE_AWS ? `${API_BASE}/products/${productId}` : `${API_BASE}/product/${categoryId}/${productId}`;
     const response = await fetch(endpoint, {
@@ -174,6 +203,10 @@ export async function deleteProduct(categoryId: string, productId: string): Prom
 
 // Initialize products (run once to migrate from static data to backend)
 export async function initializeProducts(categories: Array<{ id: string; name: string; products: Product[] }>): Promise<boolean> {
+  if (USE_SUPABASE_CATALOG || !USE_AWS) {
+    console.error('Catalog changes require an authorized Supabase backend');
+    return false;
+  }
   try {
     if (USE_AWS) {
       // AWS: Create products individually
@@ -218,6 +251,9 @@ export async function initializeProducts(categories: Array<{ id: string; name: s
 
 // Upload product image
 export async function uploadProductImage(file: File): Promise<{ success: boolean; imageUrl?: string; error?: string }> {
+  if (USE_SUPABASE_CATALOG || !USE_AWS) {
+    return { success: false, error: 'Image uploads require an authorized Supabase backend' };
+  }
   try {
     if (USE_AWS) {
       // AWS: Get presigned URL first
